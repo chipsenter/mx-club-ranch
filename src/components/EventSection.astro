@@ -1,0 +1,17 @@
+---
+import type { EventEntry } from '../data/site';
+import Icon from './Icon.astro';
+interface Props { id: string; title: string; intro: string; events: EventEntry[]; past?: boolean; }
+const { id, title, intro, events, past = false } = Astro.props;
+const formatDate = (date: string) => new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(new Date(date + 'T12:00:00Z'));
+---
+<section id={id} class:list={['events-section', { 'past-section': past }]} aria-labelledby={`${id}-heading`}>
+  <div class="section-heading"><h2 id={`${id}-heading`}>{title}</h2><p>{intro}</p></div>
+  {events.length ? <div class:list={['event-grid', { 'single-event': events.length === 1 }]}>{events.map(event => <article class="event-entry">
+    <img class:list={{ 'event-poster': event.poster }} src={event.image} alt={event.imageAlt} width={event.imageWidth || 900} height={event.imageHeight || 600} loading="lazy" />
+    <div class="event-copy">{event.date ? <time datetime={event.date}>{event.dateLabel || formatDate(event.date)}</time> : event.dateLabel && <span class="event-date">{event.dateLabel}</span>}<h3>{event.title}</h3><p>{event.description}</p>{event.url && <a class="text-link" href={event.url}>{past ? 'Read the story' : 'Event details'}<Icon/></a>}</div>
+  </article>)}</div> : <div class="event-empty">
+    <figure><img src={past ? '/images/moto-turn.jpg' : '/images/moto-air.jpg'} alt={past ? 'Illustrative motocross rider rounding a muddy turn' : 'Illustrative motocross action above a dirt track'} width="1000" height="620" loading="lazy"/><figcaption>Illustrative photography · Jordan Andrews / Unsplash</figcaption></figure>
+    <div class="event-copy"><h3>{past ? 'Good days. Great memories.' : 'See you at the next one.'}</h3><span class="status-label">{past ? 'Stories coming soon' : 'Dates coming soon'}</span><p>{past ? 'The rides, the people, the moments in between. Stories and photos from the ranch will live here.' : 'Our next events will be listed here, with dates, details and everything you need to join us.'}</p><a class="text-link" href={past ? '#contact' : '#training'}>{past ? 'Stay in touch' : 'Explore training'}<Icon/></a></div>
+  </div>}
+</section>

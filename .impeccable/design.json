@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-06T04:48:12.959079+00:00",
+  "title": "Design System: MX Club Ranch",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "primary",
+        "displayName": "Ranch Navy"
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Warm Paper"
+      },
+      "olive": {
+        "role": "secondary",
+        "displayName": "Field Olive"
+      },
+      "accent": {
+        "role": "secondary",
+        "displayName": "Fresh Green"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Condensed display",
+        "purpose": "Expressive hero headline."
+      },
+      "body": {
+        "displayName": "Reading text",
+        "purpose": "Descriptions and explanatory copy."
+      },
+      "label": {
+        "displayName": "Status label",
+        "purpose": "Uppercase informational pending states."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "button-background",
+        "value": "background .2s",
+        "purpose": "Primary action hover."
+      },
+      {
+        "name": "carousel",
+        "value": "opacity .45s cubic-bezier(.16,1,.3,1), visibility .45s",
+        "purpose": "User-triggered slide changes."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "transition: none !important; animation: none !important; scroll-behavior: auto",
+        "purpose": "Honor reduced-motion preference."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide-min",
+        "value": "1600px"
+      },
+      {
+        "name": "intermediate-max",
+        "value": "1050px"
+      },
+      {
+        "name": "mobile-max",
+        "value": "760px"
+      },
+      {
+        "name": "narrow-max",
+        "value": "370px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Navy action with explicit arrow and visible keyboard focus.",
+      "html": "<a class=\"ds-primary\" href=\"#training\">Find your next ride <svg width=\"19\" height=\"19\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><path d=\"M4 12h16M14 6l6 6-6 6\"/></svg></a>",
+      "css": ".ds-primary{display:inline-flex;align-items:center;justify-content:space-between;gap:30px;min-height:54px;padding:16px 22px;background:var(--ink,#0b2335);color:var(--white,#fff);border-radius:5px;font-size:13px;font-weight:600;text-decoration:none;transition:background .2s;font-family:var(--body,Manrope,sans-serif);}.ds-primary:hover{background:#294759}.ds-primary:focus-visible{outline:3px solid #d46326;outline-offset:5px}@media(prefers-reduced-motion:reduce){.ds-primary{transition:none}}"
+    },
+    {
+      "name": "Icon action",
+      "kind": "button",
+      "refersTo": "button-icon",
+      "description": "Outlined circular carousel control.",
+      "html": "<button class=\"ds-icon\" aria-label=\"Next photo\"><svg width=\"19\" height=\"19\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><path d=\"M4 12h16M14 6l6 6-6 6\"/></svg></button>",
+      "css": ".ds-icon{border:1px solid var(--line,#d8dcd9);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;background:transparent;color:var(--ink,#0b2335);cursor:pointer}.ds-icon:hover{background:#e7e9df}.ds-icon:focus-visible{outline:3px solid var(--focus,#b24a16);outline-offset:5px}.ds-icon svg{width:17px;height:17px}.ds-icon:disabled{cursor:not-allowed;opacity:.45}"
+    },
+    {
+      "name": "Text action",
+      "kind": "button",
+      "refersTo": "link-text",
+      "description": "A low-emphasis text link with a ruled baseline.",
+      "html": "<a class=\"ds-text\" href=\"#contact\">Keep in touch <svg width=\"19\" height=\"19\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><path d=\"M4 12h16M14 6l6 6-6 6\"/></svg></a>",
+      "css": ".ds-text{display:inline-flex;align-items:center;gap:24px;font-size:13px;font-weight:600;padding-bottom:7px;border-bottom:1px solid currentColor;text-decoration:none;color:var(--ink,#0b2335);font-family:var(--body,Manrope,sans-serif);}.ds-text:focus-visible{outline:3px solid var(--focus,#b24a16);outline-offset:5px}"
+    },
+    {
+      "name": "Pending status",
+      "kind": "chip",
+      "refersTo": "status-label",
+      "description": "Informational label for forthcoming owner content.",
+      "html": "<span class=\"ds-status\">Training schedule coming soon</span>",
+      "css": ".ds-status{display:inline-block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;background:#f5e4d7;padding:8px 10px;border-radius:4px;color:#743d20;font-family:var(--body,Manrope,sans-serif);}"
+    },
+    {
+      "name": "Section menu",
+      "kind": "nav",
+      "refersTo": "menu-trigger",
+      "description": "Native details navigation with an inverted open trigger.",
+      "html": "<details class=\"ds-menu\"><summary>Menu <svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><path d=\"M4 7h16M4 12h16M4 17h16\"/></svg></summary><nav aria-label=\"Main navigation\"><a href=\"#training\">Training</a><a href=\"#events\">Upcoming events</a><a href=\"#contact\">Contact us</a></nav></details>",
+      "css": ".ds-menu{position:relative;color:var(--ink,#0b2335);font-family:var(--body,Manrope,sans-serif);}.ds-menu summary{display:flex;width:fit-content;align-items:center;gap:25px;border:1px solid currentColor;padding:12px 17px;border-radius:6px;font-size:13px;font-weight:600;list-style:none;cursor:pointer}.ds-menu summary::-webkit-details-marker{display:none}.ds-menu[open] summary{background:var(--ink,#0b2335);color:var(--paper,#f5f3ec)}.ds-menu nav{margin-top:12px;width:262px;background:var(--paper,#f5f3ec);padding:16px 24px 8px;border:1px solid var(--line,#d8dcd9);border-radius:10px}.ds-menu nav a{display:block;padding:16px 0;font-size:16px;border-bottom:1px solid var(--line,#d8dcd9);color:inherit;text-decoration:none}.ds-menu nav a:hover{color:#b24a16}.ds-menu summary:focus-visible{outline:3px solid var(--focus,#b24a16);outline-offset:5px}.ds-menu a:focus-visible{outline:3px solid var(--focus,#b24a16);outline-offset:5px}"
+    },
+    {
+      "name": "Calendar surface",
+      "kind": "card",
+      "refersTo": "calendar",
+      "description": "Flat bordered calendar shell with a ruled result area.",
+      "html": "<section class=\"ds-calendar\"><h3>Training calendar</h3><p>Choose a date to explore training.</p><div class=\"ds-result\"><h4>Training schedule coming soon</h4><p>No training sessions announced for this date.</p></div></section>",
+      "css": ".ds-calendar{padding:28px;border:1px solid var(--line,#d8dcd9);background:#fffefa;border-radius:14px;color:var(--ink,#0b2335);font-variant-numeric:tabular-nums;font-family:var(--body,Manrope,sans-serif);}.ds-calendar h3{font-size:16px;font-weight:600;line-height:1.4;margin:0 0 24px}.ds-calendar p{font-size:12px;line-height:1.7;color:var(--muted,#53616a);margin:5px 0 0}.ds-result{border-top:1px solid var(--line,#d8dcd9);margin-top:20px;padding-top:18px;min-height:74px}.ds-result h4{font-size:14px;margin:0}"
+    },
+    {
+      "name": "Calendar date states",
+      "kind": "custom",
+      "refersTo": "calendar-date-selected",
+      "description": "Default, today, selected and scheduled examples; selection behavior is supplied by the application.",
+      "html": "<div class=\"ds-dates\"><button aria-label=\"Example date\">12</button><button class=\"ds-today\" aria-current=\"date\" aria-label=\"Example today\">13</button><button aria-pressed=\"true\" aria-label=\"Example selected date\">14</button><button class=\"ds-session\" aria-label=\"Example scheduled date\">15</button></div>",
+      "css": ".ds-dates{display:flex;gap:5px;color:var(--ink,#0b2335);font-family:var(--body,Manrope,sans-serif);}.ds-dates button{position:relative;min-height:36px;width:44px;aspect-ratio:1.18;display:grid;place-items:center;background:transparent;border:1px solid transparent;border-radius:5px;font-size:12px;color:inherit;cursor:pointer;font-family:var(--body,Manrope,sans-serif);}.ds-dates button:hover{background:#edf0e4}.ds-dates .ds-today{border-color:#ad4a17}.ds-dates button[aria-pressed=true]{background:var(--ink,#0b2335);color:white}.ds-session:after{content:\"\";position:absolute;bottom:4px;width:4px;height:4px;border-radius:50%;background:#ad4a17}.ds-dates button:focus-visible{outline:3px solid var(--focus,#b24a16);outline-offset:5px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Club Prospectus",
+    "overview": "A modern club prospectus grounded in the supplied MX Club Ranch identity. Navy typography and cream reading surfaces keep the page direct and legible; condensed headings bring energy while open sections leave the photography room to work.\n\nThe accepted direction is simple, modern and logo-led. Depth comes from tonal bands, fine borders and cropped photography. Compact controls remain visibly functional, with restrained movement and clear keyboard focus.",
+    "keyCharacteristics": [
+      "Navy and cream identity with restrained green accents.",
+      "Condensed display typography beside calm reading text.",
+      "Open sections, fine rules and rounded photographic frames.",
+      "Compact outlined controls and explicit interaction states."
+    ],
+    "rules": [],
+    "dos": [
+      "Do preserve the supplied logo and navy/cream identity.",
+      "Do use condensed type for expressive headings and Manrope for reading and controls.",
+      "Do keep long text on light reading surfaces and use the established focus treatment.",
+      "Do preserve photo credits and label illustrative imagery honestly.",
+      "Do retain visible empty states until owner content activates training, events, contact and location.",
+      "Do respect reduced-motion preferences and keep carousel movement user-controlled."
+    ],
+    "donts": [
+      "Don\u2019t invent event dates, bookable sessions, contact details or location claims.",
+      "Don\u2019t add shadows to the established flat surfaces without an explicit design change.",
+      "Don\u2019t present status labels as interactive controls.",
+      "Don\u2019t replace the supplied brand with generic racing graphics or an unrelated palette."
+    ]
+  }
+}
