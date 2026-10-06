@@ -1,5 +1,5 @@
 ---
-name: MX Club Ranch
+name: Club Ranch MX
 description: A simple, logo-led motocross club prospectus.
 colors:
   ink: "#0b2335"
@@ -113,13 +113,13 @@ components:
     rounded: "{rounded.button}"
 ---
 
-# Design System: MX Club Ranch
+# Design System: Club Ranch MX
 
 ## Overview
 
 **Creative North Star: "The Club Prospectus"**
 
-A modern club prospectus grounded in the supplied MX Club Ranch identity. Navy typography and cream reading surfaces keep the page direct and legible; condensed headings bring energy while open sections leave the photography room to work.
+A modern club prospectus grounded in the supplied Club Ranch MX identity. Navy typography and cream reading surfaces keep the page direct and legible; condensed headings bring energy while open sections leave the photography room to work.
 
 The accepted direction is simple, modern and logo-led. Depth comes from tonal bands, fine borders and cropped photography. Compact controls remain visibly functional, with restrained movement and clear keyboard focus.
 

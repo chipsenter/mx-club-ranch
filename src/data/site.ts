@@ -17,8 +17,8 @@ export type TrainingSession = {
   bookingUrl?: string; // Real HTTPS booking link; capacity is managed by your provider
 };
 export const site = {
-  name: 'MX Club Ranch',
-  description: 'Motocross training, upcoming events and life at MX Club Ranch.',
+  name: 'Club Ranch MX',
+  description: 'Motocross training, upcoming events and life at Club Ranch MX.',
   phone: '',
   email: '',
   address: '',

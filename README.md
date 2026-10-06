@@ -1,4 +1,4 @@
-# MX Club Ranch
+# Club Ranch MX
 A simple, responsive motocross training website. Astro, TypeScript and Tailwind, matching jlsolutions-web. Static output for Cloudflare Pages.
 
 ## Local development
@@ -21,7 +21,7 @@ Deployment is not implied by this configuration. Confirm a successful deployment
 
 ## Assets
 The original supplied logo stays at `IMG_6089.png`; the site uses an unchanged copy. It is a small image with a textured background and a visible image-search mark. Replace it with a clean, higher-resolution brand export when available.
-Stock motocross photos are illustrative, not photos of MX Club Ranch. See `public/images/SOURCES.md`. Replace with owned ranch photography before launch.
+Stock motocross photos are illustrative, not photos of Club Ranch MX. See `public/images/SOURCES.md`. Replace with owned ranch photography before launch.
 
 ## Launch checklist
 - Real ranch photos and clean logo
