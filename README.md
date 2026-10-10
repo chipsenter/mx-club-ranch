@@ -37,3 +37,17 @@ Edit `swagItems` in `src/data/site.ts` to update the merchandise showcase. The s
 Add gallery images to `public/images` and entries to `eventPhotos` in `src/data/site.ts`, including descriptive alt text, caption and original dimensions. Photos fill equal 4:3 carousel frames using cover cropping without distortion; opening a photo shows its full original image. The supplied Instagram URL is configured in `site.instagram` and appears in contact and footer.
 
 The event photo gallery is a native horizontal scroll-snap carousel with touch/trackpad scrolling, previous/next controls, a counter, and keyboard arrows/Home/End. A single photo keeps both arrows disabled; adding entries to `eventPhotos` activates navigation automatically.
+
+## News
+Edit `latestNews` in `src/data/site.ts` to replace the top announcement, image and posting date. The posting date is distinct from the training date: the November MX School announcement has no confirmed event dates yet.
+
+
+### Swag cart and photo viewer
+
+`ShopSection.astro` renders merchandise from `swagItems` in `src/data/site.ts`. Each item needs a stable `id`. `src/scripts/experience.ts` handles cart quantities (1–10 per product), removal, local persistence under `club-ranch-mx-cart-v1`, storage validation, cross-tab updates and a session-only fallback when storage is blocked. No customer or payment information is collected. The saved cart is explicitly a wishlist; it does not reserve stock.
+
+Checkout deliberately remains unavailable until the owner supplies real prices/currency, product variants and sizes, stock, fulfillment details, and a connected commerce account. A future checkout integration must obtain authoritative prices and inventory from that provider, map the stable product IDs to its variants, and create a real checkout there. Do not use browser-stored prices as payment authority or put private API keys in client code. Shipping/tax and order confirmation also need verification before sales open.
+
+The photo viewer enhances existing full-size image links for event photos, news and swag. Event images can be navigated with arrows or keyboard; Escape restores focus. All imagery remains accessible without JavaScript. Full-page refinements live in `src/styles/experience.css`.
+
+Validation for this pass: production build and Astro check; desktop/mobile layouts at 1440, 390 and 320px in both themes; cart add/update/remove/reload, malformed cart data and blocked storage; calendar/date interaction; photo and hero controls; mobile menu; theme persistence. Payments have not been connected or tested.

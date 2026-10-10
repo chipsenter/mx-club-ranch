@@ -11,3 +11,5 @@
 - ranch-event-airborne.png: user-supplied Screenshot 2026-10-05 at 10.58.01 PM.png. Copied without editing; no rider identity or event date inferred.
 
 - ranch-event-mountain-jump.png: user-supplied IMG_6273.png, copied without editing.
+
+- november-mx-school-news.jpeg: user-supplied 9B066F6E-2FF6-4E80-A425-A0DB33AB2F28.jpeg. Original announcement preserved without cropping or edits. Guest identity and exact event dates are not inferred.

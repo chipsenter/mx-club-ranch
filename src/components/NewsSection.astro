@@ -1,0 +1,17 @@
+---
+import { latestNews, site } from '../data/site';
+import Icon from './Icon.astro';
+const published = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${latestNews.publishedDate}T12:00:00Z`));
+---
+<section id="news" class="news-section wrap" aria-labelledby="news-heading">
+  <div class="news-heading"><h2 id="news-heading">News.</h2><p>Posted <time datetime={latestNews.publishedDate}>{published}</time></p></div>
+  <article class="news-feature" aria-labelledby="news-title">
+    <a class="news-poster" href={latestNews.image} target="_blank" rel="noopener noreferrer" aria-label="View the full November MX School announcement"><img src={latestNews.image} alt={latestNews.imageAlt} width={latestNews.imageWidth} height={latestNews.imageHeight} loading="eager" fetchpriority="high"/></a>
+    <div class="news-copy">
+      <h3 id="news-title">{latestNews.title}</h3>
+      <p>{latestNews.description}</p>
+      <div class="news-date"><span class="news-month">NOV</span><div><strong>MX School</strong><span>Dates coming soon</span></div><Icon name="calendar"/></div>
+      {site.instagram && <a class="button" href={site.instagram} target="_blank" rel="noopener noreferrer">Follow the reveal <Icon name="instagram"/></a>}
+    </div>
+  </article>
+</section>

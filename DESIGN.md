@@ -245,3 +245,20 @@ The swag section follows past events and precedes contact. Two equal image-first
 Event Photos sits between past events and swag. Photo figures use identical 4:3 cover-cropped frames with captions below; a single image is capped at 560px. Multiple entries form a horizontal scroll-snap carousel with a partial next slide visible, native touch/trackpad scrolling, arrow controls and a photo counter. Keyboard arrows/Home/End and reduced motion are supported. Full-size links are keyboard accessible. The footer now includes a stroked Instagram icon and @clubranchmx link.
 
 The full-width header stays sticky at the viewport top in both themes. Anchor scrolling reserves 150px on desktop and 120px on mobile. The dropdown scrolls internally on short screens.
+
+## News feature
+News is the first section after the sticky header. The section heading pairs with an explicitly labeled posting date. The feature uses a full, uncropped poster beside a large condensed title, supporting copy, an orange month/date-status row and Instagram action. Its bordered surface uses theme tokens; below 760px, the poster and copy stack. Original photography and poster lettering are never recolored.
+
+
+## Full-page amplification — October 2026
+
+The professional UI pass is implemented in `src/styles/experience.css`, loaded after the base stylesheet. It preserves the Club Ranch MX logo, Barlow Condensed / Manrope typography, cream/navy themes, orange accents, and all supplied content. This section supersedes older descriptions of the affected layouts above.
+
+- A compact sticky header includes desktop quick links, theme switching, a live cart count, and the existing section menu. A thin orange reading-progress line follows page scrolling.
+- News stays first. An ink announcement panel pairs the entire uncropped poster with a strong headline, November date detail, and Instagram action. Its short clip-and-settle entrance is the primary authored motion.
+- The hero uses a full-width photographic stage with a contrast overlay, orange action, captions and manual slide controls. Photos settle subtly when selected; no autoplay.
+- The training calendar sits in a tonal section, with legible month typography and all original calendar behavior. Past-event images and copy form a wider editorial spread.
+- Event and product images open in a native modal photo viewer. Photo navigation supports buttons and left/right keys; Escape closes and focus returns to the originating link. Ordinary image links remain available without JavaScript.
+- The swag showcase supports a saved cart. A native modal drawer provides quantity controls, removal, an empty state, and explicit pending-checkout messaging. Prices, sizes, inventory and purchases are not implied. The cart count and changes are announced accessibly.
+- Footer lettering creates a strong closing moment; pending contact and map information stays truthful.
+- Motion respects reduced-motion settings. Mobile controls, short-screen dialogs, both themes, and 320px layouts are supported. Product-image zoom is a small hover affordance rather than an autoplay effect.

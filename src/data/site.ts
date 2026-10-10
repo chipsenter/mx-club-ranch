@@ -58,6 +58,7 @@ export const trainingSessions: TrainingSession[] = [
 
 export const swagItems = [
   {
+    id: 'ranch-camo-hat',
     name: 'Ranch Camo Hat',
     description: 'Woodland camo, a mesh back, and the Club Ranch MX logo in standout orange.',
     image: '/images/ranch-camo-hat.png',
@@ -66,6 +67,7 @@ export const swagItems = [
     height: 1064,
   },
   {
+    id: 'ranch-camo-hoodie',
     name: 'Ranch Camo Hoodie',
     description: 'Light camo with a bold orange Club Ranch MX logo. Bring the ranch with you.',
     image: '/images/ranch-camo-hoodie.png',
@@ -92,3 +94,14 @@ export const eventPhotos = [
     height: 745,
   },
 ];
+
+
+export const latestNews = {
+  publishedDate: '2026-10-09',
+  title: 'Guess who’s coming to the ranch.',
+  description: 'November MX School at Club Ranch MX. Exact training dates are coming soon — keep an eye on our Instagram for updates.',
+  image: '/images/november-mx-school-news.jpeg',
+  imageAlt: 'November MX School announcement: a motocross rider on a yellow Suzuki bike, with the words “Guess who is coming to Club Ranch MX” and “Dates coming soon.”',
+  imageWidth: 1376,
+  imageHeight: 1440,
+};
