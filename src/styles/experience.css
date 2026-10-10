@@ -200,3 +200,6 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 
 @media(max-height:600px) { .cart-drawer[open] { display: block; overflow-y: auto; } .cart-content { overflow: visible; } }
+
+.footer-credit { padding-block: 0 24px; text-align: center; color: #becbd0; font-size: 11px; line-height: 1.6; }
+.footer-credit>span:first-child { color: #ff9855; font-weight: 600; }
