@@ -266,3 +266,11 @@ The professional UI pass is implemented in `src/styles/experience.css`, loaded a
 ## Welcome film — October 10, 2026
 
 The first viewport now features the owner's portrait ranch reel. Keep it uncropped in a 9:16 frame, with native controls and a branded opening-frame poster. On desktop it sits beside “Welcome to the ranch”; on mobile it precedes that copy. News follows the film. The header keeps the logo, theme, cart and menu only; duplicate quick links are removed. The compact 280px desktop / 240px mobile poster preview opens an enlarged native-dialog player on click, preserving the portrait proportions. Playback with sound requires that explicit click. The close button, Escape and backdrop dismiss the player and restore focus.
+
+
+## Welcome banner — October 10
+The welcome copy leads a separate tonal hero band before News. Three equal 4:5 media panels span the desktop content width: the clickable film poster and two interim event photos, ready for replacement by owner-supplied hero photos. The film and photos expand to uncropped modal viewers. On mobile, the same-sized panels scroll horizontally with native touch and scroll snapping. The band ends with a border and space before News.
+
+Hero refinement: headline and signoff above the media row; introductory copy and training/film actions form a compact footer below the images. The footer stacks on tablet/mobile with consistent spacing.
+
+Header refinement: an angled, lightly warm brand lane and short orange baseline distinguish the sticky header. The brand underline responds to hover/focus, menu icon rotates on opening, and scrolling adds a restrained shadow. Reduced motion removes spatial animation.

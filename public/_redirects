@@ -1,1 +1,2 @@
-https://www.clubranchmx.com/* https://clubranchmx.com/:splat 301
+# WWW to apex is managed by the Cloudflare zone Redirect Rule.
+# Domain-level redirects are not supported in Pages _redirects.

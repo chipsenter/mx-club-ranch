@@ -99,7 +99,7 @@ if (drawer) {
 
 // Full photographs remain accessible through ordinary links when JavaScript is off.
 const viewer = document.querySelector<HTMLDialogElement>('.photo-viewer');
-const photoLinks = [...document.querySelectorAll<HTMLAnchorElement>('.photo-gallery a, .swag-photo, .news-poster')];
+const photoLinks = [...document.querySelectorAll<HTMLAnchorElement>('.photo-gallery a, .swag-photo, .news-poster, .hero-photo-link')];
 let viewerIndex = 0;
 let viewerSet: HTMLAnchorElement[] = [];
 let viewerOrigin: HTMLElement | null = null;
@@ -127,8 +127,10 @@ viewer?.addEventListener('close', () => viewerOrigin?.focus({ preventScroll: tru
 viewer?.addEventListener('click', event => { if (event.target === viewer) { const rect = viewer.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) viewer.close(); } });
 
 const progress = document.querySelector<HTMLElement>('[data-reading-progress]');
+const stickyHeader = document.querySelector<HTMLElement>('.header-band');
 let ticking = false;
 const updateProgress = () => {
+  stickyHeader?.classList.toggle('is-scrolled', scrollY > 16);
   const distance = document.documentElement.scrollHeight - innerHeight;
   if (progress) progress.style.transform = `scaleX(${distance > 0 ? Math.min(1, Math.max(0, scrollY / distance)) : 0})`;
   ticking = false;

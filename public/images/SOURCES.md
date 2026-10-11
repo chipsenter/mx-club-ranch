@@ -15,3 +15,5 @@
 - november-mx-school-news.jpeg: user-supplied 9B066F6E-2FF6-4E80-A425-A0DB33AB2F28.jpeg. Original announcement preserved without cropping or edits. Guest identity and exact event dates are not inferred.
 
 - `club-ranch-welcome-poster.jpg`: opening frame at 1 second from the owner-supplied `Club Ranch_Reel 1_CV1.mov`, extracted as the welcome film poster.
+
+- `jordanmx1.jpg`, `jordanmx2.jpg`, `jordanmx3.jpg`, `jordanmx4.jpg`: owner-supplied event photos added October 10, 2026. Originals copied from the supplied dist/images files into public/images without edits; no identities or event dates inferred.

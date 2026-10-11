@@ -1,19 +1,34 @@
 ---
 import Icon from './Icon.astro';
+import { eventPhotos } from '../data/site';
+// Replace these interim ranch images when the two new hero photos arrive.
+const heroPhotos = eventPhotos.slice(0, 2);
 ---
-<section class="welcome-film wrap" aria-labelledby="welcome-heading">
+<section class="welcome-banner" aria-labelledby="welcome-heading">
+ <div class="welcome-film wrap">
+  <div class="welcome-film-copy">
+    <h1 id="welcome-heading">Welcome to the <em>ranch.</em></h1>
+    <p class="welcome-film-signoff">A little dirt. A lot of drive.</p>
+  </div>
+  <div class="welcome-media-row" aria-label="Film and photos from the ranch">
   <figure class="welcome-film-media">
     <a class="film-preview" href="/videos/club-ranch-welcome.mp4" data-open-film aria-label="Watch the Club Ranch MX welcome film" aria-haspopup="dialog">
       <img src="/images/club-ranch-welcome-poster.jpg" width="720" height="1280" alt="Aerial view of the Club Ranch MX track at golden hour" fetchpriority="high"/>
-      <span class="film-play"><span class="play-symbol" aria-hidden="true">▶</span><span>Watch the film <small>0:28 · A look around the ranch</small></span></span>
+      <span class="film-play"><span class="play-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span><span>Watch the film <small>0:28 · A look around the ranch</small></span></span>
     </a>
   </figure>
-  <div class="welcome-film-copy">
-    <h1 id="welcome-heading">Welcome to<br/>the <em>ranch.</em></h1>
+    {heroPhotos.map(photo => <figure class="hero-photo">
+      <a class="hero-photo-link" href={photo.image} aria-label={`Enlarge photo: ${photo.caption}`}>
+        <img src={photo.image} alt={photo.alt} width={photo.width} height={photo.height}/>
+      </a>
+      <figcaption>{photo.caption}</figcaption>
+    </figure>)}
+  </div>
+  <div class="welcome-film-summary">
     <p>Colorado motocross training at Club Ranch MX. A place for riding, community, and your next day on the bike.</p>
     <div class="welcome-film-actions"><a class="button" href="#training">Find your next ride <Icon/></a><a class="text-link film-link" href="/videos/club-ranch-welcome.mp4" data-open-film aria-haspopup="dialog">Watch the film <Icon name="sound"/></a></div>
-    <p class="welcome-film-signoff">A little dirt. A lot of drive.</p>
   </div>
+ </div>
 </section>
 <dialog class="film-viewer" aria-labelledby="film-viewer-title">
   <div class="film-viewer-header"><h2 id="film-viewer-title">A look around the ranch</h2><button type="button" data-close-film aria-label="Close welcome film" autofocus><Icon name="close"/></button></div>
@@ -48,21 +63,25 @@ import Icon from './Icon.astro';
   }
 </script>
 <style>
-  .welcome-film { display:grid; grid-template-columns:1.15fr .85fr; grid-template-areas:"copy media"; gap:clamp(32px,4vw,64px); align-items:center; padding-block:40px 50px; }
-  .welcome-film-media { grid-area:media; width:100%; max-width:280px; justify-self:center; margin:0; }
-  .film-preview { display:block; position:relative; overflow:hidden; border-radius:16px; background:#0b1721; box-shadow:0 20px 45px -24px #0008; }
-  .film-preview img { display:block; width:100%; height:auto; aspect-ratio:9 / 16; object-fit:contain; }
+  .welcome-banner { background:var(--past); border-bottom:1px solid var(--line); margin-bottom:40px; }
+  .welcome-film { padding-block:40px 48px; }
+  .welcome-media-row { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; margin-top:32px; }
+  .welcome-film-media,.hero-photo { min-width:0; margin:0; position:relative; }
+  .film-preview,.hero-photo-link { display:block; position:relative; overflow:hidden; border-radius:16px; background:#0b1721; aspect-ratio:4 / 5; }
+  .film-preview img,.hero-photo img { display:block; width:100%; height:100%; object-fit:cover; }
+  .hero-photo figcaption { position:absolute; bottom:0; left:0; right:0; pointer-events:none; padding:48px 20px 24px; background:linear-gradient(transparent,rgba(4,15,23,.85)); border-radius:0 0 16px 16px; color:#fff; font-size:14px; }
   .film-play { position:absolute; inset:auto 0 0; display:flex; align-items:center; gap:12px; padding:52px 18px 22px; background:linear-gradient(transparent,rgba(4,15,23,.95)); color:#fff; font-size:14px; font-weight:600; }
   .film-play small { display:block; font-size:10px; font-weight:400; margin-top:5px; color:#e4e9ed; }
   .play-symbol { display:grid; place-items:center; flex:0 0 42px; height:42px; border:1px solid #ffffff80; border-radius:50%; padding-left:3px; }
   .film-preview:hover .play-symbol { background:var(--accent); color:#0b1721; border-color:var(--accent); }
   .film-preview:focus-visible { outline:3px solid var(--focus); outline-offset:5px; }
-  .welcome-film-copy { grid-area:copy; padding-block:16px; }
-  h1 { font-size:clamp(64px,7.5vw,96px); line-height:.95; letter-spacing:-.02em; }
-  .welcome-film-copy>p { font-size:16px; max-width:37ch; margin-top:26px; }
-  .welcome-film-actions { display:flex; flex-wrap:wrap; align-items:center; gap:26px; margin-top:32px; }
+  .welcome-film-copy { display:flex; justify-content:space-between; align-items:end; gap:32px; }
+  h1 { font-size:clamp(64px,6vw,88px); line-height:.95; letter-spacing:-.02em; }
+  .welcome-film-summary { display:flex; align-items:center; justify-content:space-between; gap:40px; padding-top:28px; }
+  .welcome-film-summary>p { font-size:15px; line-height:1.75; max-width:55ch; margin:0; }
+  .welcome-film-actions { display:flex; flex-wrap:wrap; align-items:center; gap:24px; flex-shrink:0; }
   .film-link { gap:12px; min-height:44px; }
-  .welcome-film-copy .welcome-film-signoff { border-top:1px solid var(--line); padding-top:24px; margin-top:32px; font-family:var(--display); font-size:26px; color:var(--ink); }
+  .welcome-film-copy .welcome-film-signoff { font-family:var(--display); font-size:24px; line-height:1.2; color:var(--muted); padding-bottom:5px; }
   .film-viewer { margin:auto; padding:12px; width:min(520px,calc(100vw - 24px)); max-width:calc(100vw - 24px); max-height:calc(100dvh - 24px); border-radius:14px; overflow:auto; }
   .film-viewer::backdrop { background:rgba(4,15,23,.88); }
   .film-viewer-header { display:flex; align-items:center; justify-content:space-between; gap:16px; padding-bottom:10px; }
@@ -71,14 +90,21 @@ import Icon from './Icon.astro';
   .film-viewer video { display:block; width:100%; height: min(820px,calc(100dvh - 110px)); object-fit:contain; background:#0b1721; border-radius:6px; }
   .film-error { font-size:12px; margin-top:12px; }
   .film-error a { text-decoration:underline; }
-  @media(max-width:760px) {
-    .welcome-film { grid-template-columns:1fr; grid-template-areas:"media" "copy"; gap:28px; padding-block:24px 36px; }
-    .welcome-film-media { max-width:240px; }
-    .welcome-film-copy { padding-block:0; }
-    h1 { font-size:70px; }
-    .welcome-film-copy>p { font-size:14px; margin-top:20px; }
-    .welcome-film-actions { gap:20px; margin-top:24px; }
-    .welcome-film-copy .welcome-film-signoff { font-size:23px; margin-top:28px; padding-top:20px; }
+  @media(max-width:1050px) {
+    .welcome-film-summary { flex-direction:column; align-items:flex-start; gap:20px; }
+    .welcome-film-copy .welcome-film-signoff { max-width:13ch; }
   }
-  @media(max-width:370px) { h1 { font-size:62px; } .welcome-film-actions { gap:16px; } }
+  @media(max-width:760px) {
+    .welcome-banner { margin-bottom:24px; }
+    .welcome-film { padding-block:28px 32px; }
+    .welcome-film-copy { display:block; }
+    h1 { font-size:64px; max-width:12ch; }
+    .welcome-film-summary { padding-top:12px; gap:20px; }
+    .welcome-film-summary>p { font-size:14px; }
+    .welcome-film-actions { gap:20px; }
+    .welcome-film-copy .welcome-film-signoff { font-size:21px; margin-top:16px; max-width:none; padding:0; }
+    .welcome-media-row { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; gap:16px; margin-top:24px; padding:6px 6px 16px; scroll-padding-left:6px; }
+    .welcome-film-media,.hero-photo { flex:0 0 78%; scroll-snap-align:start; }
+  }
+  @media(max-width:370px) { h1 { font-size:56px; } .welcome-film-actions { gap:16px; } .film-play { padding-inline:12px; gap:8px; } .film-play small { font-size:9px; } }
 </style>

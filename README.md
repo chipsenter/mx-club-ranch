@@ -71,12 +71,12 @@ References: [Google developer SEO guide](https://developers.google.com/search/do
 ### Club Ranch MX deployment — October 10, 2026
 
 - Hosting: Cloudflare Pages, direct upload project `mx-club-ranch`, production branch `main`.
-- Production domain: `https://clubranchmx.com`. Both apex and `www` are associated with the Pages project; DNS activation is pending the account owner adding the CNAME records.
+- Production domain: `https://clubranchmx.com`. Both apex and `www` are active on the Pages project with HTTPS.
 - Pages URL: `https://mx-club-ranch.pages.dev`; initial deployment: `https://aff6a6eb.mx-club-ranch.pages.dev`.
 - `npm run build:production` sets the purchased domain and enables indexing, builds the site, and runs production SEO checks. `npm run pages:deploy` runs that checked build then uploads to Pages. Ordinary `npm run build` stays suitable for previews.
-- Add CNAME `@` and CNAME `www`, both targeting `mx-club-ranch.pages.dev`, proxied with automatic TTL. Custom-domain association has already been completed. The connected Wrangler OAuth credential lacks DNS editing permission.
-- `public/_redirects` sends `www.clubranchmx.com` to the apex after DNS/certificates activate. The Pages alias remains available as a preview/fallback, with the custom domain specified as canonical.
-- Deployment verified over HTTPS: Pages homepage 200, expected canonical and crawler files, missing URL 404. Custom-domain HTTPS must still be verified after DNS activation.
+- CNAME `@` and CNAME `www` target `mx-club-ranch.pages.dev`, proxied with automatic TTL.
+- A Cloudflare zone Redirect Rule sends HTTP/HTTPS `www.clubranchmx.com` requests to the HTTPS apex with status 301, preserving paths and queries. Pages `_redirects` does not support domain-level redirects.
+- Deployment verified over HTTPS: Pages homepage 200, expected canonical and crawler files, missing URL 404. Custom-domain HTTPS and the www redirect were verified after activation.
 - Direct upload does not automatically publish GitHub pushes. Run the deploy command for future releases; configure CI separately if desired.
 
 ### Welcome film
@@ -85,4 +85,4 @@ The owner-supplied ranch reel now leads the homepage through `WelcomeFilm.astro`
 
 A compact, uncropped poster preview opens a larger native-dialog video player on click. The preview is capped at 280px wide on desktop and 240px on mobile. Playback with sound begins only after that click; native controls support pause, volume, seeking and fullscreen. Escape, the close button or the backdrop dismiss the player, pause playback and restore focus. Playback also pauses in a hidden tab. Without JavaScript, the preview links directly to the MP4. The video source is assigned only on opening; loading failures expose a direct-video fallback.
 
-Header quick links (News, The ride, Shop) were removed; section links remain in the dropdown. This video change has been verified locally and is not yet deployed.
+Header quick links (News, The ride, Shop) were removed; section links remain in the dropdown. The welcome video is deployed. The hero now groups it with two matching photo panels, with introductory copy and actions below; News remains separate.

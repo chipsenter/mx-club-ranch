@@ -93,6 +93,34 @@ export const eventPhotos = [
     width: 1170,
     height: 745,
   },
+  {
+    image: '/images/jordanmx1.jpg',
+    alt: 'Rider on a number 449 motocross bike beside a person standing trackside.',
+    caption: 'Between laps.',
+    width: 1440,
+    height: 1440,
+  },
+  {
+    image: '/images/jordanmx4.jpg',
+    alt: 'Two motocross riders jumping side by side with snow-covered mountains behind them.',
+    caption: 'Side by side.',
+    width: 1440,
+    height: 1440,
+  },
+  {
+    image: '/images/jordanmx3.jpg',
+    alt: 'Wide view of two airborne motocross riders above a dirt track with mountains in the distance.',
+    caption: 'Riding with a view.',
+    width: 1440,
+    height: 1440,
+  },
+  {
+    image: '/images/jordanmx2.jpg',
+    alt: 'Motocross rider on a number 449 bike airborne against a blue-gray sky.',
+    caption: 'Off the ground.',
+    width: 1440,
+    height: 1440,
+  },
 ];
 
 

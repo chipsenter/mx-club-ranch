@@ -203,3 +203,28 @@ body:has(dialog[open]) { overflow: hidden; }
 
 .footer-credit { padding-block: 0 24px; text-align: center; color: #becbd0; font-size: 11px; line-height: 1.6; }
 .footer-credit>span:first-child { color: #ff9855; font-weight: 600; }
+
+/* A track-inspired header: a warm brand lane and restrained control feedback. */
+.header-band { isolation:isolate; transition:box-shadow .25s var(--ease-out); }
+.header-band::before { content:''; position:absolute; inset:0 auto 0 0; width:clamp(330px,43vw,720px); background:color-mix(in srgb,var(--emphasis) 7%,var(--header)); clip-path:polygon(0 0,100% 0,calc(100% - 52px) 100%,0 100%); z-index:-1; pointer-events:none; }
+.header-band::after { content:''; position:absolute; bottom:-1px; left:0; width:clamp(180px,24vw,400px); height:3px; background:var(--accent); clip-path:polygon(0 0,100% 0,calc(100% - 8px) 100%,0 100%); pointer-events:none; }
+.header-band.is-scrolled { box-shadow:0 10px 24px -16px rgba(0,0,0,.65); }
+.site-header .brand>span { position:relative; }
+.site-header .brand small { display:flex; align-items:center; gap:8px; }
+.site-header .brand small::before { content:''; width:14px; height:3px; background:var(--emphasis); transform:skewX(-25deg); }
+.site-header .brand>span::after { content:''; position:absolute; left:0; right:0; bottom:-9px; height:2px; background:var(--emphasis); transform:scaleX(0); transform-origin:left; transition:transform .25s var(--ease-out); }
+.site-header .brand:hover>span::after,.site-header .brand:focus-visible>span::after { transform:scaleX(1); }
+.site-header .theme-toggle,.site-header .cart-toggle,.site-header .menu summary { transition:background-color .18s ease,border-color .18s ease,color .18s ease; }
+.site-header .theme-toggle:hover,.site-header .cart-toggle:hover,.site-header .menu summary:hover { border-color:var(--emphasis); background:var(--control-hover); }
+.site-header .menu[open] summary { background:var(--action); color:var(--on-action); border-color:var(--action); }
+.site-header .menu summary svg { transition:transform .25s var(--ease-out); }
+.site-header .menu[open] summary svg { transform:rotate(90deg); }
+@media(max-width:760px) {
+ .header-band::before { width:56%; clip-path:polygon(0 0,100% 0,calc(100% - 28px) 100%,0 100%); }
+ .header-band::after { width:100px; height:2px; }
+ .site-header .brand small { display:none; }
+}
+@media(prefers-reduced-motion:reduce) {
+ .header-band,.site-header .brand>span::after,.site-header .menu summary svg { transition:none; }
+ .site-header .menu[open] summary svg { transform:none; }
+}
