@@ -18,7 +18,7 @@ export type TrainingSession = {
 };
 export const site = {
   name: 'Club Ranch MX',
-  description: 'Motocross training, upcoming events and life at Club Ranch MX.',
+  description: 'Colorado motocross training at Club Ranch MX. Explore MX school news, training dates, events, photos and ranch swag for your next day on the bike.',
   phone: '',
   email: '',
   address: '',

@@ -13,3 +13,5 @@
 - ranch-event-mountain-jump.png: user-supplied IMG_6273.png, copied without editing.
 
 - november-mx-school-news.jpeg: user-supplied 9B066F6E-2FF6-4E80-A425-A0DB33AB2F28.jpeg. Original announcement preserved without cropping or edits. Guest identity and exact event dates are not inferred.
+
+- `club-ranch-welcome-poster.jpg`: opening frame at 1 second from the owner-supplied `Club Ranch_Reel 1_CV1.mov`, extracted as the welcome film poster.

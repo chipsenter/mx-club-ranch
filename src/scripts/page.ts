@@ -5,22 +5,6 @@ menu?.querySelectorAll('a').forEach(link => link.addEventListener('click', () =>
 document.addEventListener('click', event => { if (menu && !menu.contains(event.target as Node)) menu.open = false; });
 document.addEventListener('keydown', event => { if (event.key === 'Escape' && menu?.open) { menu.open = false; menu.querySelector('summary')?.focus(); } });
 
-const slides = [...document.querySelectorAll<HTMLElement>('[data-slide]')];
-let slideIndex = 0;
-const showSlide = (offset: number) => {
-  slideIndex = (slideIndex + offset + slides.length) % slides.length;
-  slides.forEach((slide, index) => { slide.classList.toggle('active', index === slideIndex); slide.setAttribute('aria-hidden', String(index !== slideIndex)); });
-  const count = document.querySelector('#slide-count');
-  if (count) count.textContent = `${slideIndex + 1} / ${slides.length}`;
-};
-document.querySelector('[data-carousel-prev]')?.addEventListener('click', () => showSlide(-1));
-document.querySelector('[data-carousel-next]')?.addEventListener('click', () => showSlide(1));
-const carousel = document.querySelector<HTMLElement>('.hero-media');
-carousel?.addEventListener('keydown', event => { if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); showSlide(event.key === 'ArrowLeft' ? -1 : 1); } });
-let touchX = 0;
-carousel?.addEventListener('touchstart', event => { touchX = event.changedTouches[0].clientX; }, { passive: true });
-carousel?.addEventListener('touchend', event => { const delta = event.changedTouches[0].clientX - touchX; if (Math.abs(delta) > 60) showSlide(delta < 0 ? 1 : -1); }, { passive: true });
-
 const calendar = document.querySelector<HTMLElement>('[data-calendar]');
 if (calendar) {
   const sessions: TrainingSession[] = JSON.parse(calendar.dataset.sessions || '[]');

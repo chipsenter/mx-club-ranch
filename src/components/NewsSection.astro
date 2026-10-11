@@ -6,7 +6,7 @@ const published = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeri
 <section id="news" class="news-section wrap" aria-labelledby="news-heading">
   <div class="news-heading"><h2 id="news-heading">News.</h2><p>Posted <time datetime={latestNews.publishedDate}>{published}</time></p></div>
   <article class="news-feature" aria-labelledby="news-title">
-    <a class="news-poster" href={latestNews.image} target="_blank" rel="noopener noreferrer" aria-label="View the full November MX School announcement"><img src={latestNews.image} alt={latestNews.imageAlt} width={latestNews.imageWidth} height={latestNews.imageHeight} loading="eager" fetchpriority="high"/></a>
+    <a class="news-poster" href={latestNews.image} target="_blank" rel="noopener noreferrer" aria-label="View the full November MX School announcement"><img src={latestNews.image} alt={latestNews.imageAlt} width={latestNews.imageWidth} height={latestNews.imageHeight} loading="lazy"/></a>
     <div class="news-copy">
       <h3 id="news-title">{latestNews.title}</h3>
       <p>{latestNews.description}</p>

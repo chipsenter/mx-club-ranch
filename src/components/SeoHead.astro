@@ -1,0 +1,27 @@
+---
+import { site } from '../data/site';
+import { seo, pageTitle, absoluteUrl, socialImagePath, socialImageAlt, structuredData } from '../lib/seo';
+---
+<title>{pageTitle}</title>
+<meta name="description" content={site.description}/>
+<meta name="robots" content={seo.indexable ? 'index, follow, max-image-preview:large' : 'noindex, follow'}/>
+{seo.origin && <link rel="canonical" href={seo.origin}/>}
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content={site.name}/>
+<meta property="og:title" content={pageTitle}/>
+<meta property="og:description" content={site.description}/>
+<meta property="og:locale" content="en_US"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content={pageTitle}/>
+<meta name="twitter:description" content={site.description}/>
+{seo.origin && <>
+  <meta property="og:url" content={seo.origin}/>
+  <meta property="og:image" content={absoluteUrl(socialImagePath)}/>
+  <meta property="og:image:type" content="image/png"/>
+  <meta property="og:image:width" content="1170"/>
+  <meta property="og:image:height" content="745"/>
+  <meta property="og:image:alt" content={socialImageAlt}/>
+  <meta name="twitter:image" content={absoluteUrl(socialImagePath)}/>
+  <meta name="twitter:image:alt" content={socialImageAlt}/>
+</>}
+{structuredData && <script type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')}/>}
