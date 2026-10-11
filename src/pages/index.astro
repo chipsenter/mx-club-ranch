@@ -5,6 +5,7 @@ import '@fontsource/manrope/400.css';
 import '@fontsource/manrope/600.css';
 import '../styles/global.css';
 import '../styles/experience.css';
+import ContactBubble from '../components/ContactBubble.astro';
 import ShopSection from '../components/ShopSection.astro';
 import SeoHead from '../components/SeoHead.astro';
 import Icon from '../components/Icon.astro';
@@ -90,6 +91,7 @@ const hasEmbed = hasBooking && safeHttps(site.bookingEmbedUrl);
 </main>
 <footer class="site-footer"><div class="footer-statement wrap" aria-hidden="true">SEE YOU <span>AT THE RANCH.</span></div><div class="wrap footer-main"><div class="footer-info"><a href="#" class="footer-name">CLUB RANCH MX</a><p>More time on the bike.<br/>More stories to bring home.</p><address>{site.address || 'Ranch address coming soon'}{site.phone && <a href={phoneHref}>{site.phone}</a>}{site.email && <a href={`mailto:${site.email}`}>{site.email}</a>}</address>{site.instagram && <a class="footer-instagram" href={site.instagram} target="_blank" rel="noopener noreferrer" aria-label="Follow @clubranchmx on Instagram"><Icon name="instagram"/><span>@clubranchmx</span></a>}{site.directionsUrl && <a class="text-link" href={site.directionsUrl} target="_blank" rel="noopener noreferrer">Get directions <Icon name="external"/></a>}</div><div class="footer-map">{site.mapEmbedUrl ? <iframe title="Club Ranch MX location" src={site.mapEmbedUrl} loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe> : <div class="map-pending"><Icon name="pin"/><h3>Meet us at the ranch.</h3><p>Our location and directions will be shared here soon.</p></div>}</div></div><div class="wrap footer-bottom"><span>© {new Date().getFullYear()} Club Ranch MX</span><nav aria-label="Footer navigation"><a href="#news">News</a><a href="#training">Training</a><a href="#events">Events</a><a href="#photos">Photos</a><a href="#swag">Swag</a><a href="#contact">Contact</a></nav><a href="#">Back to top <Icon class="up-arrow"/></a></div><div class="wrap footer-credit">Built by <span>jlsolutionstech</span><span aria-hidden="true"> · </span>2026</div></footer>
 <dialog class="photo-viewer" aria-labelledby="viewer-caption"><div class="viewer-top"><span>From the ranch</span><button type="button" class="icon-button" data-viewer-close aria-label="Close photo viewer"><Icon name="close"/></button></div><img data-viewer-image alt=""/><div class="viewer-bottom"><button type="button" class="icon-button previous" data-viewer-prev aria-label="Previous photo"><Icon name="chevron"/></button><p id="viewer-caption"></p><button type="button" class="icon-button" data-viewer-next aria-label="Next photo"><Icon name="chevron"/></button></div></dialog>
+<ContactBubble/>
 <script>
   import '../scripts/experience';
   import '../scripts/page';

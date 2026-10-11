@@ -228,3 +228,8 @@ body:has(dialog[open]) { overflow: hidden; }
  .header-band,.site-header .brand>span::after,.site-header .menu summary svg { transition:none; }
  .site-header .menu[open] summary svg { transform:none; }
 }
+
+.footer-info > .text-link { display:flex; width:fit-content; }
+
+/* Leave room for the floating contact control at the end of the page. */
+.footer-credit { padding-bottom:100px; }

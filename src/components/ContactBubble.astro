@@ -1,0 +1,50 @@
+---
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+---
+<details class="contact-bubble">
+  <summary aria-label="Open contact panel" aria-controls="ranch-contact-panel"><Icon name="chat"/><span>Let’s talk</span></summary>
+  <section id="ranch-contact-panel" class="contact-panel" aria-labelledby="ranch-contact-title">
+    <div class="contact-panel-top"><h2 id="ranch-contact-title">Talk to the ranch.</h2><button type="button" data-contact-close aria-label="Close contact panel" hidden><Icon name="close"/></button></div>
+    <p>Questions about training, events, or ranch swag? Drop us a line.</p>
+    <a class="button" href={`mailto:${site.email}`}>Contact us <Icon name="mail"/></a>
+    <small>Opens your email app<br/><a href={`mailto:${site.email}`}>{site.email}</a></small>
+  </section>
+</details>
+<script>
+  const bubble = document.querySelector<HTMLDetailsElement>('.contact-bubble');
+  if (bubble) {
+    const toggle = bubble.querySelector('summary')!;
+    const close = bubble.querySelector<HTMLButtonElement>('[data-contact-close]')!;
+    close.hidden = false;
+    const dismiss = () => { bubble.open = false; toggle.focus({ preventScroll:true }); };
+    close.addEventListener('click', dismiss);
+    bubble.addEventListener('toggle', () => {
+      toggle.setAttribute('aria-expanded', String(bubble.open));
+      toggle.setAttribute('aria-label', bubble.open ? 'Close contact panel' : 'Open contact panel');
+    });
+    toggle.setAttribute('aria-expanded', String(bubble.open));
+    bubble.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && bubble.open) { event.preventDefault(); dismiss(); }
+    });
+    document.addEventListener('click', event => {
+      if (bubble.open && event.target instanceof Node && !bubble.contains(event.target)) bubble.open = false;
+    });
+  }
+</script>
+<style>
+  .contact-bubble { position:fixed; bottom:calc(24px + env(safe-area-inset-bottom)); right:24px; z-index:40; }
+  summary { display:flex; align-items:center; justify-content:center; gap:10px; min-height:56px; padding:14px 20px; list-style:none; border-radius:28px; background:var(--accent); color:#0b2335; font-size:13px; font-weight:600; box-shadow:0 8px 24px -8px #0007; }
+  summary::-webkit-details-marker { display:none; }
+  summary:hover { background:#ffb07a; }
+  .contact-panel { position:absolute; right:0; bottom:calc(100% + 16px); width:min(340px,calc(100vw - 40px)); max-height:calc(100dvh - 128px - env(safe-area-inset-bottom)); overflow:auto; padding:24px; border-radius:16px; background:var(--surface); color:var(--ink); box-shadow:0 16px 48px -16px #0008; }
+  .contact-panel-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  h2 { font-size:32px; }
+  .contact-panel-top button { display:grid; place-items:center; flex-shrink:0; width:44px; height:44px; background:transparent; border:1px solid var(--line); border-radius:50%; }
+  .contact-panel-top button:hover { background:var(--control-hover); }
+  p { margin-top:16px; font-size:14px; line-height:1.7; }
+  .button { width:100%; margin-top:24px; }
+  small { display:block; margin-top:16px; font-size:11px; line-height:1.8; color:var(--muted); }
+  small a { text-decoration:underline; }
+  @media(max-width:760px) { .contact-bubble { right:16px; bottom:calc(16px + env(safe-area-inset-bottom)); } summary { width:56px; padding:14px; } summary span { display:none; } }
+</style>

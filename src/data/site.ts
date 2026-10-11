@@ -20,8 +20,8 @@ export const site = {
   name: 'Club Ranch MX',
   description: 'Colorado motocross training at Club Ranch MX. Explore MX school news, training dates, events, photos and ranch swag for your next day on the bike.',
   phone: '',
-  email: '',
-  address: '',
+  email: 'post@clubranchmx.com',
+  address: '11021 Yellowstone Rd, Longmont, CO 80504',
   facebook: '',
   instagram: 'https://www.instagram.com/clubranchmx/',
   // Set your verified Cal.com or Calendly event URL. Booking stays off until supplied.
@@ -29,8 +29,8 @@ export const site = {
   // Optional provider-approved embed URL. Never put a private calendar URL here.
   bookingEmbedUrl: '',
   // Paste a Google Maps embed URL for the actual ranch location.
-  mapEmbedUrl: '',
-  directionsUrl: '',
+  mapEmbedUrl: 'https://www.google.com/maps?q=11021%20Yellowstone%20Rd%2C%20Longmont%2C%20CO%2080504&output=embed',
+  directionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=11021%20Yellowstone%20Rd%2C%20Longmont%2C%20CO%2080504',
 };
 export const heroSlides = [
   { image: '/images/moto-turn.jpg', alt: 'Motocross rider carving a turn on a dirt track', caption: 'Find your line.', credit: 'Illustrative photography · Jordan Andrews / Unsplash' },

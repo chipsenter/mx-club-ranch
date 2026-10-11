@@ -274,3 +274,5 @@ The welcome copy leads a separate tonal hero band before News. Three equal 4:5 m
 Hero refinement: headline and signoff above the media row; introductory copy and training/film actions form a compact footer below the images. The footer stacks on tablet/mobile with consistent spacing.
 
 Header refinement: an angled, lightly warm brand lane and short orange baseline distinguish the sticky header. The brand underline responds to hover/focus, menu icon rotates on opening, and scrolling adds a restrained shadow. Reduced motion removes spatial animation.
+
+A floating orange contact bubble opens a compact email panel. Native details supports keyboard and no-JavaScript use; Escape, close, and outside click dismiss it. Contact us opens mailto:post@clubranchmx.com. No live-chat availability or automated replies are implied.

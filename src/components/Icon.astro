@@ -2,6 +2,8 @@
 interface Props { name?: string; class?: string; }
 const { name = 'arrow', class: className } = Astro.props;
 const paths: Record<string, string> = {
+  chat: 'M21 11a8 8 0 0 1-8 8H8l-5 3V11a9 9 0 0 1 18 0ZM7 10h10M7 14h6',
+  mail: 'M3 5h18v14H3V5Zm0 1 9 7 9-7',
   sound: 'M11 4 6 8H3v8h3l5 4V4Zm4 4a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14',
   bag: 'M5 7h14l1 14H4L5 7Zm3 0V6a4 4 0 0 1 8 0v1',
   close: 'm6 6 12 12M6 18 18 6',
