@@ -1,6 +1,7 @@
 ---
 import { latestNews, site } from '../data/site';
 import Icon from './Icon.astro';
+const signupHref = `mailto:${site.email}?subject=${encodeURIComponent('Chisholm training signup — November 21–22, 2026')}&body=${encodeURIComponent('Hi Club Ranch MX,\n\nI would like to sign up for training with Chisholm on November 21–22, 2026.\n\nRider name:\nPhone number:\n\nPlease send me the registration details. Thank you!')}`;
 const published = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${latestNews.publishedDate}T12:00:00Z`));
 ---
 <section id="news" class="news-section wrap" aria-labelledby="news-heading">
@@ -8,8 +9,11 @@ const published = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeri
   <article class="news-feature news-video-feature" aria-labelledby="news-video-title">
     <div class="news-video-media"><video controls playsinline preload="none" poster="/images/ranch-news-october-13.jpg" width="720" height="1280" aria-label="Latest video update from Club Ranch MX"><source src="/videos/ranch-news-october-13.mp4" type="video/mp4"/>Your browser does not support this video.</video></div>
     <div class="news-copy">
-      <h3 id="news-video-title">A message for the ranch.</h3>
-      <p>Watch the latest video update here.</p>
+      <h3 id="news-video-title">Train with Chisholm.</h3>
+      <p>Join Chisholm at Club Ranch MX for two days of motocross training.</p>
+      <div class="news-date"><span class="news-month">NOV</span><div><strong>21–22, 2026</strong><span>Club Ranch MX</span></div><Icon name="calendar"/></div>
+      <a class="button" href={signupHref}>Sign up <Icon name="mail"/></a>
+      <p class="news-published">Opens your email app to request registration details.</p>
       <p class="news-published">Posted <time datetime="2026-10-13">October 13, 2026</time></p>
       <a class="text-link" href="/videos/ranch-news-october-13.mp4" target="_blank" rel="noopener noreferrer">Open video <Icon name="external"/></a>
     </div>
