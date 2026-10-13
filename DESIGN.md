@@ -276,3 +276,9 @@ Hero refinement: headline and signoff above the media row; introductory copy and
 Header refinement: an angled, lightly warm brand lane and short orange baseline distinguish the sticky header. The brand underline responds to hover/focus, menu icon rotates on opening, and scrolling adds a restrained shadow. Reduced motion removes spatial animation.
 
 A floating orange contact bubble opens a compact email panel. Native details supports keyboard and no-JavaScript use; Escape, close, and outside click dismiss it. Contact us opens mailto:post@clubranchmx.com. No live-chat availability or automated replies are implied.
+
+The hero word “ranch.” uses the bold display weight and grows to 112% once on page entry, then settles back to normal within a second. It does not loop or retrigger on scroll. Reduced-motion users see static text.
+
+Footer polish: angled orange top accent echoes the header; email has stronger emphasis, directions gets a bordered button, and Instagram uses an orange icon. Map height and footer navigation spacing are normalized, with the builder credit aligned to the content edge.
+
+Photo frames use a restrained downward shadow, with separate light/dark opacity, across hero media, event photos, past-event imagery and swag. No extra hover motion is introduced.

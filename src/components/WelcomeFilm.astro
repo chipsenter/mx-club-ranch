@@ -77,6 +77,15 @@ const heroPhotos = eventPhotos.slice(0, 2);
   .film-preview:focus-visible { outline:3px solid var(--focus); outline-offset:5px; }
   .welcome-film-copy { display:flex; justify-content:space-between; align-items:end; gap:32px; }
   h1 { font-size:clamp(64px,6vw,88px); line-height:.95; letter-spacing:-.02em; }
+  h1 em { display:inline-block; font-weight:700; white-space:nowrap; transform-origin:center; }
+  @media(prefers-reduced-motion:no-preference) {
+    h1 em { animation:ranch-arrival .95s cubic-bezier(.16,1,.3,1) .15s both; }
+  }
+  @keyframes ranch-arrival {
+    0% { transform:scale(1); }
+    42% { transform:scale(1.12); }
+    100% { transform:scale(1); }
+  }
   .welcome-film-summary { display:flex; align-items:center; justify-content:space-between; gap:40px; padding-top:28px; }
   .welcome-film-summary>p { font-size:15px; line-height:1.75; max-width:55ch; margin:0; }
   .welcome-film-actions { display:flex; flex-wrap:wrap; align-items:center; gap:24px; flex-shrink:0; }

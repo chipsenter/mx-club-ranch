@@ -19,7 +19,7 @@ export type TrainingSession = {
 export const site = {
   name: 'Club Ranch MX',
   description: 'Colorado motocross training at Club Ranch MX. Explore MX school news, training dates, events, photos and ranch swag for your next day on the bike.',
-  phone: '',
+  phone: '+1 607 624 9173',
   email: 'post@clubranchmx.com',
   address: '11021 Yellowstone Rd, Longmont, CO 80504',
   facebook: '',
@@ -120,6 +120,44 @@ export const eventPhotos = [
     caption: 'Off the ground.',
     width: 1440,
     height: 1440,
+  },
+  {
+    image: '/images/ranch-event-blue-bike-mountains.jpeg',
+    alt: 'Motocross rider jumping a blue bike above a dirt track with snow-covered mountains beneath a clear blue sky.',
+    caption: 'Blue skies. Mountain backdrop.',
+    width: 1744,
+    height: 1136,
+  },
+  {
+    image: '/images/ranch-event-corner-roost.jpeg',
+    alt: 'Motocross rider in pink boots leaning a blue bike through a dirt turn, spraying soil behind the rear wheel.',
+    caption: 'Carving through the dirt.',
+    width: 1170,
+    height: 1144,
+  },
+  {
+    image: '/images/ranch-event-monochrome-collage.jpeg',
+    alt: 'Black-and-white collage of motocross jumps and an aerial track view, with mwccreative credit.',
+    caption: 'Ranch moments · mwccreative',
+    width: 906,
+    height: 1675,
+    fit: 'contain',
+  },
+  {
+    image: '/images/ranch-event-orange-bike-story.jpeg',
+    alt: 'Motocross rider airborne on an orange bike against a blue sky, with mwccreative credit.',
+    caption: 'Into the blue · mwccreative',
+    width: 902,
+    height: 1649,
+    fit: 'contain',
+  },
+  {
+    image: '/images/ranch-event-aerial-collage.jpeg',
+    alt: 'Two aerial photographs of the ranch dirt track, with mwccreative credit and the words Place was ripping today.',
+    caption: 'A day at the ranch · mwccreative',
+    width: 945,
+    height: 1608,
+    fit: 'contain',
   },
 ];
 

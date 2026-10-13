@@ -19,7 +19,7 @@ assert.equal((html.match(/<h1\b/g) || []).length, 1);
 assert.match(html, /Colorado Motocross Training/);
 assert.match(html, /Denver, Broomfield, Longmont, Fort Collins, and Boulder/);
 assert.match(html, /name="description" content="[^\"]{80,180}"/);
-assert.match(html, /name="twitter:card" content="summary_large_image"/);
+assert.match(html, /name="twitter:card" content="summary"/);
 assert.match(errorPage, /name="robots" content="noindex, follow"/);
 assert.match(robots, /User-agent: \*\nAllow: \//);
 assert.doesNotMatch(sitemap, /#training|#news|404|lastmod|priority/);

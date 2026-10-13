@@ -17,3 +17,11 @@
 - `club-ranch-welcome-poster.jpg`: opening frame at 1 second from the owner-supplied `Club Ranch_Reel 1_CV1.mov`, extracted as the welcome film poster.
 
 - `jordanmx1.jpg`, `jordanmx2.jpg`, `jordanmx3.jpg`, `jordanmx4.jpg`: owner-supplied event photos added October 10, 2026. Originals copied from the supplied dist/images files into public/images without edits; no identities or event dates inferred.
+
+- `ranch-event-blue-bike-mountains.jpeg`: owner-supplied `4CCCCA03-6024-4268-8BF5-6B81B94314A7.jpeg`, copied unchanged.
+
+- `ranch-event-corner-roost.jpeg`: owner-supplied `IMG_6267.jpeg`, copied unchanged.
+
+- `ranch-event-monochrome-collage.jpeg`, `ranch-event-orange-bike-story.jpeg`, `ranch-event-aerial-collage.jpeg`: user-supplied IMG_6706.jpeg, IMG_6705.jpeg, IMG_6703.jpeg. Original images and embedded mwccreative credits retained; duplicates in the message added only once. Displayed uncropped in the carousel.
+
+- `ranch-news-october-13.jpg`: poster frame from user-supplied IMG_4637.mov, added October 13, 2026. Video exported as `public/videos/ranch-news-october-13.mp4` for browser playback.

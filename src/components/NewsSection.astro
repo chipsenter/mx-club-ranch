@@ -4,11 +4,21 @@ import Icon from './Icon.astro';
 const published = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${latestNews.publishedDate}T12:00:00Z`));
 ---
 <section id="news" class="news-section wrap" aria-labelledby="news-heading">
-  <div class="news-heading"><h2 id="news-heading">News.</h2><p>Posted <time datetime={latestNews.publishedDate}>{published}</time></p></div>
+  <div class="news-heading"><h2 id="news-heading">News.</h2></div>
+  <article class="news-feature news-video-feature" aria-labelledby="news-video-title">
+    <div class="news-video-media"><video controls playsinline preload="none" poster="/images/ranch-news-october-13.jpg" width="720" height="1280" aria-label="Latest video update from Club Ranch MX"><source src="/videos/ranch-news-october-13.mp4" type="video/mp4"/>Your browser does not support this video.</video></div>
+    <div class="news-copy">
+      <h3 id="news-video-title">A message for the ranch.</h3>
+      <p>Watch the latest video update here.</p>
+      <p class="news-published">Posted <time datetime="2026-10-13">October 13, 2026</time></p>
+      <a class="text-link" href="/videos/ranch-news-october-13.mp4" target="_blank" rel="noopener noreferrer">Open video <Icon name="external"/></a>
+    </div>
+  </article>
   <article class="news-feature" aria-labelledby="news-title">
     <a class="news-poster" href={latestNews.image} target="_blank" rel="noopener noreferrer" aria-label="View the full November MX School announcement"><img src={latestNews.image} alt={latestNews.imageAlt} width={latestNews.imageWidth} height={latestNews.imageHeight} loading="lazy"/></a>
     <div class="news-copy">
       <h3 id="news-title">{latestNews.title}</h3>
+      <p class="news-published">Posted <time datetime={latestNews.publishedDate}>{published}</time></p>
       <p>{latestNews.description}</p>
       <div class="news-date"><span class="news-month">NOV</span><div><strong>MX School</strong><span>Dates coming soon</span></div><Icon name="calendar"/></div>
       {site.instagram && <a class="button" href={site.instagram} target="_blank" rel="noopener noreferrer">Follow the reveal <Icon name="instagram"/></a>}
