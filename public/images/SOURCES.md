@@ -25,3 +25,5 @@
 - `ranch-event-monochrome-collage.jpeg`, `ranch-event-orange-bike-story.jpeg`, `ranch-event-aerial-collage.jpeg`: user-supplied IMG_6706.jpeg, IMG_6705.jpeg, IMG_6703.jpeg. Original images and embedded mwccreative credits retained; duplicates in the message added only once. Displayed uncropped in the carousel.
 
 - `ranch-news-october-13.jpg`: poster frame from user-supplied IMG_4637.mov, added October 13, 2026. Video exported as `public/videos/ranch-news-october-13.mp4` for browser playback.
+
+- `austin-forkner-training-october-clean.png`: AI-assisted edit of the supplied Austin Forkner poster, removing only the central date-change sentence. Original preserved as `austin-forkner-training-october.png`.

@@ -25,6 +25,15 @@ if (calendar) {
       const label = document.createElement('p'); label.textContent = [session.time, session.title].filter(Boolean).join(' · '); row.append(label);
       const inPast = session.date < key(now);
       try { const url = new URL(session.bookingUrl || ''); if (url.protocol === 'https:' && !inPast) { const link = document.createElement('a'); link.href = url.href; link.textContent = 'Check availability'; link.target = '_blank'; link.rel = 'noopener noreferrer'; row.append(link); } } catch { /* Incomplete links must not appear as bookable. */ }
+      if (!inPast && session.signupUrl) {
+        try {
+          const url = new URL(session.signupUrl);
+          if (url.protocol === 'mailto:') {
+            const link = document.createElement('a'); link.href = url.href;
+            link.textContent = 'Sign up by email'; row.append(link);
+          }
+        } catch { /* Invalid signup links are omitted. */ }
+      }
       result.append(row);
     });
   };

@@ -14,6 +14,7 @@ export type TrainingSession = {
   date: string; // YYYY-MM-DD in the ranch's timezone
   time?: string; // Include the local timezone, e.g. "9:00 AM MDT"
   title: string;
+  signupUrl?: string; // Email registration request, distinct from confirmed booking
   bookingUrl?: string; // Real HTTPS booking link; capacity is managed by your provider
 };
 export const site = {
@@ -43,16 +44,20 @@ export const pastEvents: EventEntry[] = [
     title: 'Train with Austin Forkner',
     dateLabel: 'October 3–4',
     description: 'A two-day motocross training event with Austin Forkner at Club Ranch MX.',
-    image: '/images/austin-forkner-training-october.png',
-    imageAlt: 'Train with Austin Forkner at Club Ranch MX, October 3–4. Event poster featuring a rider on a green motocross bike against a mountain backdrop. The poster notes the date was changed due to races.',
-    imageWidth: 1632,
-    imageHeight: 960,
+    image: '/images/austin-forkner-training-october-clean.png',
+    imageAlt: 'Train with Austin Forkner at Club Ranch MX, October 3–4. Event poster featuring a rider on a green motocross bike against a mountain backdrop.',
+    imageWidth: 1635,
+    imageHeight: 962,
     poster: true,
   },
 ];
+export const chisholmSignupUrl = `mailto:${site.email}?subject=${encodeURIComponent('Chisholm training signup — November 21–22, 2026')}&body=${encodeURIComponent('Hi Club Ranch MX,\n\nI would like to sign up for training with Chisholm on November 21–22, 2026.\n\nRider name:\nPhone number:\n\nPlease send me the registration details. Thank you!')}`;
+
 export const trainingSessions: TrainingSession[] = [
   { date: '2026-10-03', title: 'Train with Austin Forkner' },
   { date: '2026-10-04', title: 'Train with Austin Forkner' },
+  { date: '2026-11-21', title: 'Train with Chisholm', signupUrl: chisholmSignupUrl },
+  { date: '2026-11-22', title: 'Train with Chisholm', signupUrl: chisholmSignupUrl },
 ];
 
 
