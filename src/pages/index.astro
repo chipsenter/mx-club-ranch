@@ -10,8 +10,10 @@ import ShopSection from '../components/ShopSection.astro';
 import SeoHead from '../components/SeoHead.astro';
 import Icon from '../components/Icon.astro';
 import EventSection from '../components/EventSection.astro';
+import RanchMemoriesFilm from '../components/RanchMemoriesFilm.astro';
 import WelcomeFilm from '../components/WelcomeFilm.astro';
 import NewsSection from '../components/NewsSection.astro';
+import MyPassion from '../components/MyPassion.astro';
 import { site, upcomingEvents, pastEvents, trainingSessions, eventPhotos } from '../data/site';
 const phoneHref = `tel:${site.phone.replace(/[^+\d]/g, '')}`;
 const links = [['News', '#news'], ['Training', '#training'], ['Upcoming events', '#events'], ['Past events', '#stories'], ['Event photos', '#photos'], ['Ranch swag', '#swag'], ['Contact us', '#contact']];
@@ -50,6 +52,7 @@ const hasEmbed = hasBooking && safeHttps(site.bookingEmbedUrl);
 <div class="reading-progress" aria-hidden="true"><span data-reading-progress></span></div>
 <main id="main">
   <WelcomeFilm/>
+  <MyPassion/>
   <NewsSection/>
   <div class="welcome-strip wrap"><span>Two wheels. One shared passion.</span><a href="#training">Let’s get riding <Icon/></a></div>
   <section id="training" class="training-section wrap" aria-labelledby="training-heading">
@@ -70,7 +73,7 @@ const hasEmbed = hasBooking && safeHttps(site.bookingEmbedUrl);
     {hasEmbed && <details class="booking-embed"><summary>Book here on the page <Icon name="chevron"/></summary><p>Booking is provided by an external service. <a href={site.bookingUrl} target="_blank" rel="noopener noreferrer">Open it in a new tab</a> if it does not load.</p><iframe data-src={site.bookingEmbedUrl} title="Book Club Ranch MX training" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></details>}
   </section>
   <div class="wrap"><EventSection id="events" title="Upcoming events." intro="A reason to get together. A reason to ride. Keep an eye on what’s ahead." events={upcomingEvents}/></div>
-  <div class="past-band"><div class="wrap"><EventSection id="stories" title="Past events. Ranch memories." intro="A look back at the days that brought us together. More than laps. Memories." events={pastEvents} past/></div></div>
+  <div class="past-band"><div class="wrap"><EventSection id="stories" title="Past events. Ranch memories." intro="A look back at the days that brought us together. More than laps. Memories." events={pastEvents} past><RanchMemoriesFilm/></EventSection></div></div>
   <section id="photos" class="photos-section wrap" aria-labelledby="photos-heading">
     <div class="section-heading"><h2 id="photos-heading">Event photos.</h2><p>The moments between the dust settling.<br/>A look at the ride, one frame at a time.</p></div>
     <div class="photo-carousel" role="region" aria-roledescription="carousel" aria-label="Event photos">

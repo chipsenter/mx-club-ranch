@@ -7,6 +7,7 @@ const formatDate = (date: string) => new Intl.DateTimeFormat('en-US', { month: '
 ---
 <section id={id} class:list={['events-section', { 'past-section': past }]} aria-labelledby={`${id}-heading`}>
   <div class="section-heading"><h2 id={`${id}-heading`}>{title}</h2><p>{intro}</p></div>
+  <slot/>
   {events.length ? <div class:list={['event-grid', { 'single-event': events.length === 1 }]}>{events.map(event => <article class="event-entry">
     <img class:list={{ 'event-poster': event.poster }} src={event.image} alt={event.imageAlt} width={event.imageWidth || 900} height={event.imageHeight || 600} loading="lazy" />
     <div class="event-copy">{event.date ? <time datetime={event.date}>{event.dateLabel || formatDate(event.date)}</time> : event.dateLabel && <span class="event-date">{event.dateLabel}</span>}<h3>{event.title}</h3><p>{event.description}</p>{event.url && <a class="text-link" href={event.url}>{past ? 'Read the story' : 'Event details'}<Icon/></a>}</div>

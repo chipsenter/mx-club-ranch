@@ -99,7 +99,7 @@ if (drawer) {
 
 // Full photographs remain accessible through ordinary links when JavaScript is off.
 const viewer = document.querySelector<HTMLDialogElement>('.photo-viewer');
-const photoLinks = [...document.querySelectorAll<HTMLAnchorElement>('.photo-gallery a, .swag-photo, .news-poster, .hero-photo-link')];
+const photoLinks = [...document.querySelectorAll<HTMLAnchorElement>('.photo-gallery a, .swag-photo, .news-poster, .hero-photo-link, .story-photo')];
 let viewerIndex = 0;
 let viewerSet: HTMLAnchorElement[] = [];
 let viewerOrigin: HTMLElement | null = null;

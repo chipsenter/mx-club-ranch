@@ -1,0 +1,17 @@
+---
+import Icon from './Icon.astro';
+---
+<figure class="memories-film">
+  <video controls playsinline preload="none" width="1280" height="720" poster="/images/club-ranch-forkner-wide-poster.jpg" aria-label="Club Ranch MX and Austin Forkner film">
+    <source src="/videos/club-ranch-forkner-wide.mp4" type="video/mp4"/>
+    Your browser does not support this video. <a href="/videos/club-ranch-forkner-wide.mp4">Watch the ranch memories film.</a>
+  </video>
+  <figcaption><span>More than laps. Memories.</span><a href="/videos/club-ranch-forkner-wide.mp4" target="_blank" rel="noopener noreferrer">Open video <Icon name="external"/></a></figcaption>
+</figure>
+<style>
+  .memories-film { margin:0 0 48px; }
+  video { display:block; width:100%; height:auto; aspect-ratio:16 / 9; object-fit:contain; background:#06131c; border-radius:16px; box-shadow:var(--photo-shadow); }
+  figcaption { display:flex; justify-content:space-between; gap:16px; margin-top:16px; color:var(--muted); font-size:12px; }
+  a { display:inline-flex; align-items:center; gap:8px; color:var(--ink); text-decoration:underline; }
+  @media(max-width:760px) { .memories-film { margin-bottom:32px; } }
+</style>

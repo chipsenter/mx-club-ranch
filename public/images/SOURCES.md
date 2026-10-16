@@ -27,3 +27,12 @@
 - `ranch-news-october-13.jpg`: poster frame from user-supplied IMG_4637.mov, added October 13, 2026. Video exported as `public/videos/ranch-news-october-13.mp4` for browser playback.
 
 - `austin-forkner-training-october-clean.png`: AI-assisted edit of the supplied Austin Forkner poster, removing only the central date-change sentence. Original preserved as `austin-forkner-training-october.png`.
+
+- `club-ranch-welcome-wide-poster.jpg` and `public/videos/club-ranch-welcome-wide.mp4`: poster frame and browser MP4 from user-supplied Club Ranch_Reel 1_CV1_WIDE.mov (October 15, 2026), replacing the portrait video and two photos in the hero.
+
+- `club-ranch-memories-wide-poster.jpg` and `public/videos/club-ranch-memories-wide.mp4`: poster and MP4 from user-supplied Club Ranch_Reel 2_CV1_WIDE.mov (October 15, 2026), shown below the past-events heading and above the Forkner poster.
+
+- Reel 2 (`club-ranch-memories-wide.mp4`) now accompanies My Passion, above News. Jordan Jackson’s biographical copy supplied by the user.
+- `club-ranch-forkner-wide-poster.jpg` and `public/videos/club-ranch-forkner-wide.mp4`: poster and MP4 from user-supplied Club Ranch_Reel 4_CLUB & FORKNER_CV1_WIDE.mov, replacing Reel 2 in Past events.
+
+- `jordan-story-track.jpeg`: user-supplied IMG_7124.jpeg, shown beside the Jordan Jackson story heading. The accompanying thumbnail reuses the previously supplied `jordanmx1.jpg`. Both open their full images.
