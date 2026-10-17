@@ -7,3 +7,6 @@ dist/
 .DS_Store
 .impeccable/review/
 .impeccable/config.local.json
+
+.wrangler/
+.dev.vars

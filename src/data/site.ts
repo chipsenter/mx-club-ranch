@@ -1,3 +1,4 @@
+import { signupEvents, signupHref } from './signup-events';
 export type EventEntry = {
   title: string;
   date?: string; // ISO date when the year is known; displayed without timezone shifting
@@ -14,7 +15,7 @@ export type TrainingSession = {
   date: string; // YYYY-MM-DD in the ranch's timezone
   time?: string; // Include the local timezone, e.g. "9:00 AM MDT"
   title: string;
-  signupUrl?: string; // Email registration request, distinct from confirmed booking
+  signupUrl?: string; // Training registration request, distinct from confirmed booking
   bookingUrl?: string; // Real HTTPS booking link; capacity is managed by your provider
 };
 export const site = {
@@ -51,35 +52,23 @@ export const pastEvents: EventEntry[] = [
     poster: true,
   },
 ];
-export const chisholmSignupUrl = `mailto:${site.email}?subject=${encodeURIComponent('Chisholm training signup — November 21–22, 2026')}&body=${encodeURIComponent('Hi Club Ranch MX,\n\nI would like to sign up for training with Chisholm on November 21–22, 2026.\n\nRider name:\nPhone number:\n\nPlease send me the registration details. Thank you!')}`;
+export const chisholmSignupUrl = signupHref(signupEvents.find(event => event.id === 'chisholm-2026-11-21')!);
 
 export const trainingSessions: TrainingSession[] = [
   { date: '2026-10-03', title: 'Train with Austin Forkner' },
   { date: '2026-10-04', title: 'Train with Austin Forkner' },
-  { date: '2026-11-21', title: 'Train with Chisholm', signupUrl: chisholmSignupUrl },
-  { date: '2026-11-22', title: 'Train with Chisholm', signupUrl: chisholmSignupUrl },
+  ...signupEvents.flatMap(event => event.dates.map(date => ({ date, title: event.title, signupUrl: signupHref(event) }))),
 ];
 
 
 export const swagItems = [
-  {
-    id: 'ranch-camo-hat',
-    name: 'Ranch Camo Hat',
-    description: 'Woodland camo, a mesh back, and the Club Ranch MX logo in standout orange.',
-    image: '/images/ranch-camo-hat.png',
-    imageAlt: 'Camouflage mesh-back hat with a bright orange Club Ranch MX logo patch.',
-    width: 1404,
-    height: 1064,
-  },
-  {
-    id: 'ranch-camo-hoodie',
-    name: 'Ranch Camo Hoodie',
-    description: 'Light camo with a bold orange Club Ranch MX logo. Bring the ranch with you.',
-    image: '/images/ranch-camo-hoodie.png',
-    imageAlt: 'Light camouflage pullover hoodie with a large orange Club Ranch MX logo on the chest.',
-    width: 1428,
-    height: 1146,
-  },
+  { id: 'ranch-black-camo-hat', name: 'Black Camo Hat', category: 'Hats', description: 'Black camo with a grey Club Ranch MX logo patch.', image: '/images/ranch-black-camo-hat.png', imageAlt: 'Black camouflage mesh-back Club Ranch MX hat.', width: 1024, height: 1047, views: [] },
+  { id: 'ranch-green-hoodie', name: 'Green Ranch Hoodie', category: 'Hoodies', description: 'An olive-green pullover with a front pocket and orange ranch logo.', image: '/images/ranch-green-hoodie.png', imageAlt: 'Green pullover hoodie with an orange Club Ranch MX logo.', width: 752, height: 968, views: [] },
+  { id: 'ranch-grey-crop-hoodie', name: 'Grey Cropped Hoodie', category: 'Hoodies', description: 'A cropped grey silhouette with the orange Club Ranch MX logo.', image: '/images/ranch-grey-crop-hoodie.png', imageAlt: 'Grey cropped hoodie with an orange ranch logo.', width: 782, height: 987, views: [] },
+  { id: 'ranch-white-camo-hat', name: 'White Camo Hat', category: 'Hats', description: 'Light camo, white mesh and a dark ranch logo.', image: '/images/ranch-white-camo-hat.png', imageAlt: 'White and grey camo mesh-back Club Ranch MX hat.', width: 956, height: 791, views: [] },
+  { id: 'ranch-green-crop-hoodie', name: 'Green Cropped Hoodie', category: 'Hoodies', description: 'Olive green with the ranch logo on the front and a black cross detail on the back.', image: '/images/ranch-green-crop-hoodie.png', imageAlt: 'Front of green cropped Club Ranch MX hoodie.', width: 753, height: 967, views: [{ image: '/images/ranch-green-crop-back.png', label: 'Back', alt: 'Back of green cropped hoodie with a black cross detail.' }] },
+  { id: 'ranch-camo-hat', name: 'Ranch Camo Hat', category: 'Hats', description: 'Woodland camo, a mesh back, and the Club Ranch MX logo in standout orange.', image: '/images/ranch-camo-hat.png', imageAlt: 'Camouflage mesh-back hat with an orange Club Ranch MX logo patch.', width: 1404, height: 1064, views: [] },
+  { id: 'ranch-camo-hoodie', name: 'Ranch Camo Hoodie', category: 'Hoodies', description: 'Light camo with a bold orange Club Ranch MX logo and a black cross detail on the back.', image: '/images/ranch-camo-hoodie.png', imageAlt: 'Light camouflage hoodie with an orange Club Ranch MX logo.', width: 1428, height: 1146, views: [{ image: '/images/ranch-camo-hoodie-back.png', label: 'Back', alt: 'Back of camouflage hoodie with a black cross detail.' }] },
 ];
 
 
@@ -140,30 +129,10 @@ export const eventPhotos = [
     width: 1170,
     height: 1144,
   },
-  {
-    image: '/images/ranch-event-monochrome-collage.jpeg',
-    alt: 'Black-and-white collage of motocross jumps and an aerial track view, with mwccreative credit.',
-    caption: 'Ranch moments · mwccreative',
-    width: 906,
-    height: 1675,
-    fit: 'contain',
-  },
-  {
-    image: '/images/ranch-event-orange-bike-story.jpeg',
-    alt: 'Motocross rider airborne on an orange bike against a blue sky, with mwccreative credit.',
-    caption: 'Into the blue · mwccreative',
-    width: 902,
-    height: 1649,
-    fit: 'contain',
-  },
-  {
-    image: '/images/ranch-event-aerial-collage.jpeg',
-    alt: 'Two aerial photographs of the ranch dirt track, with mwccreative credit and the words Place was ripping today.',
-    caption: 'A day at the ranch · mwccreative',
-    width: 945,
-    height: 1608,
-    fit: 'contain',
-  },
+  { image: '/images/ranch-event-autumn-jump.jpeg', alt: 'Rider jumping an orange motocross bike over a dirt rise with autumn trees behind.', caption: 'Above the autumn trees.', width: 1156, height: 1936, position: 'center 55%' },
+  { image: '/images/ranch-event-autumn-turn.jpeg', alt: 'Rider in red gear leaning bike 100 through a dirt turn with mountains in the background.', caption: 'Finding the corner.', width: 1170, height: 1628, position: 'center 65%' },
+  { image: '/images/ranch-event-autumn-laps.jpeg', alt: 'Rider on an orange motocross bike passing beneath autumn trees.', caption: 'Laps under golden leaves.', width: 1170, height: 1539, position: 'center 80%' },
+  { image: '/images/jordan-story-track.jpeg', alt: 'Rider on bike 449 entering the track with two people watching nearby.', caption: 'Back on the track.', width: 1170, height: 1753, position: 'center 65%' },
 ];
 
 

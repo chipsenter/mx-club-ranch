@@ -24,6 +24,8 @@ try { cart = readCart(localStorage.getItem(CART_KEY)); } catch { /* In-memory ca
 const announce = (message: string) => {
   const label = document.querySelector('[data-cart-message]');
   if (label) label.textContent = message;
+  const shopStatus = document.querySelector('[data-shop-saved]');
+  if (shopStatus) shopStatus.textContent = message;
   toast?.classList.add('is-visible');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast?.classList.remove('is-visible'), 5500);
@@ -80,7 +82,12 @@ if (drawer) {
   document.querySelectorAll('[data-cart-close]').forEach(button => button.addEventListener('click', closeCart));
   drawer.addEventListener('click', event => { if (event.target === drawer && event.clientX < drawer.getBoundingClientRect().left) closeCart(); });
   drawer.addEventListener('close', () => { returnFocus?.focus({ preventScroll: true }); });
-  document.querySelector('[data-cart-browse]')?.addEventListener('click', () => { closeCart(); document.querySelector('#swag')?.scrollIntoView({ behavior: 'instant' }); document.querySelector<HTMLButtonElement>('[data-add-cart]')?.focus({ preventScroll: true }); });
+  document.querySelector('[data-cart-browse]')?.addEventListener('click', () => {
+    const shop = document.querySelector<HTMLDialogElement>('.swag-browser');
+    returnFocus = shop?.open ? shop.querySelector<HTMLElement>('[data-shop-close]') || null : document.querySelector<HTMLElement>('[data-shop-open]');
+    closeCart();
+    if (!shop?.open) document.querySelector('#swag')?.scrollIntoView({ behavior: 'instant' });
+  });
   drawer.querySelector('[data-cart-items]')?.addEventListener('click', event => {
     const button = (event.target as Element).closest<HTMLButtonElement>('[data-cart-action]');
     if (!button) return;

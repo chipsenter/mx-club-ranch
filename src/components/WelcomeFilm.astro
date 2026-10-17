@@ -2,24 +2,18 @@
 import Icon from './Icon.astro';
 ---
 <section class="welcome-banner" aria-labelledby="welcome-heading">
- <div class="welcome-film wrap">
-  <div class="welcome-film-copy">
-    <h1 id="welcome-heading">Welcome to the <em>ranch.</em></h1>
-    <p class="welcome-film-signoff">A little dirt. A lot of drive.</p>
+  <img class="hero-backdrop" src="/images/club-ranch-welcome-wide-poster.jpg" width="1280" height="720" alt="" fetchpriority="high"/>
+  <video class="hero-backdrop hero-background-video" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+  <div class="hero-shade" aria-hidden="true"></div>
+  <div class="welcome-film wrap">
+    <div class="welcome-film-copy">
+      <h1 id="welcome-heading">Welcome to<br/>the <em>ranch.</em></h1>
+      <p class="welcome-film-description">Colorado motocross training at Club Ranch MX. A place for riding, community, and your next day on the bike.</p>
+      <div class="welcome-film-actions"><a class="button" href="#training">Find your next ride <Icon/></a><a class="text-link film-link" href="/videos/club-ranch-welcome-wide.mp4" data-open-film aria-haspopup="dialog">Watch the film <Icon name="sound"/></a></div>
+      <p class="welcome-film-signoff">A little dirt. A lot of drive.</p>
+    </div>
+    <button class="background-toggle" type="button" hidden aria-label="Play background video"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path data-background-symbol d="M8 5v14l11-7z"/></svg><span>Play background</span></button>
   </div>
-  <div class="welcome-media-row" aria-label="Welcome film from the ranch">
-  <figure class="welcome-film-media">
-    <a class="film-preview" href="/videos/club-ranch-welcome-wide.mp4" data-open-film aria-label="Watch the Club Ranch MX welcome film" aria-haspopup="dialog">
-      <img src="/images/club-ranch-welcome-wide-poster.jpg" width="1280" height="720" alt="Aerial view of the Club Ranch MX track at golden hour" fetchpriority="high"/>
-      <span class="film-play"><span class="play-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span><span>Watch the film <small>0:28 · A look around the ranch</small></span></span>
-    </a>
-  </figure>
-  </div>
-  <div class="welcome-film-summary">
-    <p>Colorado motocross training at Club Ranch MX. A place for riding, community, and your next day on the bike.</p>
-    <div class="welcome-film-actions"><a class="button" href="#training">Find your next ride <Icon/></a><a class="text-link film-link" href="/videos/club-ranch-welcome-wide.mp4" data-open-film aria-haspopup="dialog">Watch the film <Icon name="sound"/></a></div>
-  </div>
- </div>
 </section>
 <dialog class="film-viewer" aria-labelledby="film-viewer-title">
   <div class="film-viewer-header"><h2 id="film-viewer-title">A look around the ranch</h2><button type="button" data-close-film aria-label="Close welcome film" autofocus><Icon name="close"/></button></div>
@@ -29,6 +23,36 @@ import Icon from './Icon.astro';
   <p class="film-error" hidden role="status">The film couldn’t load. <a href="/videos/club-ranch-welcome-wide.mp4">Open the video directly.</a></p>
 </dialog>
 <script>
+  const background = document.querySelector<HTMLVideoElement>('.hero-background-video');
+  const toggle = document.querySelector<HTMLButtonElement>('.background-toggle');
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let wantsMotion = !motion.matches;
+  let heroVisible = true;
+  const syncBackground = () => {
+    if (!background) return;
+    if (!wantsMotion || !heroVisible || document.hidden || document.querySelector<HTMLDialogElement>('.film-viewer')?.open) { background.pause(); return; }
+    if (!background.src) background.src = '/videos/club-ranch-welcome-wide.mp4';
+    background.muted = true;
+    background.play().catch(() => { /* Poster and explicit play control remain available. */ });
+  };
+  if (background && toggle) {
+    toggle.hidden = false;
+    const updateControl = () => {
+      const playing = !background.paused;
+      toggle.setAttribute('aria-label', playing ? 'Pause background video' : 'Play background video');
+      toggle.querySelector('span')!.textContent = playing ? 'Pause background' : 'Play background';
+      toggle.querySelector('path')!.setAttribute('d', playing ? 'M6 5h4v14H6zM14 5h4v14h-4z' : 'M8 5v14l11-7z');
+    };
+    background.addEventListener('play', updateControl);
+    background.addEventListener('pause', updateControl);
+    background.addEventListener('playing', () => background.classList.add('is-playing'));
+    background.addEventListener('error', () => { background.classList.remove('is-playing'); toggle.hidden = true; });
+    toggle.addEventListener('click', () => { wantsMotion = background.paused; syncBackground(); });
+    motion.addEventListener('change', () => { wantsMotion = !motion.matches; syncBackground(); if (motion.matches) background.classList.remove('is-playing'); });
+    new IntersectionObserver(entries => { heroVisible = entries[0].isIntersecting; syncBackground(); }, { threshold:0.05 }).observe(document.querySelector('.welcome-banner')!);
+    document.addEventListener('visibilitychange', syncBackground);
+    syncBackground();
+  }
   const video = document.querySelector<HTMLVideoElement>('#welcome-video');
   const viewer = document.querySelector<HTMLDialogElement>('.film-viewer');
   if (video && viewer && typeof viewer.showModal === 'function') {
@@ -39,6 +63,7 @@ import Icon from './Icon.astro';
         event.preventDefault();
         opener = link;
         viewer.showModal();
+        syncBackground();
         if (!video.getAttribute('src')) video.src = link.href;
         video.play().catch(() => { /* Native controls remain available if playback is blocked. */ });
       });
@@ -48,39 +73,33 @@ import Icon from './Icon.astro';
       const bounds = viewer.getBoundingClientRect();
       if (event.target === viewer && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)) viewer.close();
     });
-    viewer.addEventListener('close', () => { video.pause(); opener?.focus({ preventScroll:true }); });
+    viewer.addEventListener('close', () => { video.pause(); opener?.focus({ preventScroll:true }); syncBackground(); });
     document.addEventListener('visibilitychange', () => { if (document.hidden) video.pause(); });
     video.addEventListener('error', () => viewer.querySelector('.film-error')?.removeAttribute('hidden'));
   }
 </script>
 <style>
-  .welcome-banner { background:var(--past); border-bottom:1px solid var(--line); margin-bottom:40px; }
-  .welcome-film { padding-block:40px 48px; }
-  .welcome-media-row { display:grid; grid-template-columns:minmax(0,1fr); margin-top:32px; }
-  .welcome-film-media { min-width:0; margin:0; position:relative; }
-  .film-preview { display:block; position:relative; overflow:hidden; border-radius:16px; background:#0b1721; aspect-ratio:16 / 9; }
-  .film-preview img { display:block; width:100%; height:100%; object-fit:cover; }
-  .film-play { position:absolute; inset:auto 0 0; display:flex; align-items:center; gap:12px; padding:52px 18px 22px; background:linear-gradient(transparent,rgba(4,15,23,.95)); color:#fff; font-size:14px; font-weight:600; }
-  .film-play small { display:block; font-size:10px; font-weight:400; margin-top:5px; color:#e4e9ed; }
-  .play-symbol { display:grid; place-items:center; flex:0 0 42px; height:42px; border:1px solid #ffffff80; border-radius:50%; padding-left:3px; }
-  .film-preview:hover .play-symbol { background:var(--accent); color:#0b1721; border-color:var(--accent); }
-  .film-preview:focus-visible { outline:3px solid var(--focus); outline-offset:5px; }
-  .welcome-film-copy { display:flex; justify-content:space-between; align-items:end; gap:32px; }
-  h1 { font-size:clamp(64px,6vw,88px); line-height:.95; letter-spacing:-.02em; }
-  h1 em { display:inline-block; font-weight:700; white-space:nowrap; transform-origin:center; }
-  @media(prefers-reduced-motion:no-preference) {
-    h1 em { animation:ranch-arrival .95s cubic-bezier(.16,1,.3,1) .15s both; }
-  }
-  @keyframes ranch-arrival {
-    0% { transform:scale(1); }
-    42% { transform:scale(1.12); }
-    100% { transform:scale(1); }
-  }
-  .welcome-film-summary { display:flex; align-items:center; justify-content:space-between; gap:40px; padding-top:28px; }
-  .welcome-film-summary>p { font-size:15px; line-height:1.75; max-width:55ch; margin:0; }
-  .welcome-film-actions { display:flex; flex-wrap:wrap; align-items:center; gap:24px; flex-shrink:0; }
-  .film-link { gap:12px; min-height:44px; }
-  .welcome-film-copy .welcome-film-signoff { font-family:var(--display); font-size:24px; line-height:1.2; color:var(--muted); padding-bottom:5px; }
+  .welcome-banner { position:relative; isolation:isolate; background:#0b1721; color:#f5f3ec; margin-bottom:40px; overflow:hidden; }
+  .hero-backdrop { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; z-index:-3; }
+  .hero-background-video { opacity:0; }
+  .hero-background-video.is-playing { opacity:1; }
+  .hero-shade { position:absolute; inset:0; z-index:-2; background:linear-gradient(90deg,rgba(4,15,23,.8) 0%,rgba(4,15,23,.58) 48%,rgba(4,15,23,.2) 100%),linear-gradient(0deg,rgba(4,15,23,.75),transparent 55%); }
+  .welcome-film { position:relative; min-height:calc(100svh - 96px); display:flex; align-items:center; padding-block:88px 110px; }
+  .welcome-film-copy { max-width:690px; }
+  h1 { font-size:clamp(72px,7vw,96px); line-height:.95; letter-spacing:-.02em; color:#f5f3ec; }
+  h1 em { display:inline-block; color:#ff9855; font-weight:700; white-space:nowrap; transform-origin:center; }
+  .welcome-film-description { margin-top:28px; font-size:18px; line-height:1.7; max-width:48ch; color:#f5f3ec; }
+  .welcome-film-actions { display:flex; flex-wrap:wrap; align-items:center; gap:28px; margin-top:32px; }
+  .welcome-film-actions .button { background:#ff9855; color:#0b2335; }
+  .welcome-film-actions .button:hover { background:#ffad77; }
+  .film-link { color:#f5f3ec; gap:12px; min-height:48px; border-color:#f5f3ec; }
+  .welcome-film-signoff { font-family:var(--display); font-size:25px; line-height:1.3; color:#f5f3ec; margin-top:32px; }
+  .background-toggle { position:absolute; bottom:26px; left:0; display:flex; align-items:center; gap:10px; border:1px solid #ffffff70; border-radius:6px; padding:10px 13px; min-height:44px; color:#fff; background:#07151bd9; font-size:12px; }
+  .background-toggle[hidden] { display:none; }
+  .background-toggle:hover { background:#0b2335; }
+  .welcome-banner :focus-visible { outline-color:#ff9855; }
+  @media(prefers-reduced-motion:no-preference) { h1 em { animation:ranch-arrival .95s cubic-bezier(.16,1,.3,1) .15s both; } }
+  @keyframes ranch-arrival { 0% {transform:scale(1);} 42% {transform:scale(1.12);} 100% {transform:scale(1);} }
   .film-viewer { margin:auto; padding:12px; width:min(1200px,calc(100vw - 24px)); max-width:calc(100vw - 24px); max-height:calc(100dvh - 24px); border-radius:14px; overflow:auto; }
   .film-viewer::backdrop { background:rgba(4,15,23,.88); }
   .film-viewer-header { display:flex; align-items:center; justify-content:space-between; gap:16px; padding-bottom:10px; }
@@ -89,21 +108,14 @@ import Icon from './Icon.astro';
   .film-viewer video { display:block; width:100%; height:auto; max-height:calc(100dvh - 110px); aspect-ratio:16 / 9; object-fit:contain; background:#0b1721; border-radius:6px; }
   .film-error { font-size:12px; margin-top:12px; }
   .film-error a { text-decoration:underline; }
-  @media(max-width:1050px) {
-    .welcome-film-summary { flex-direction:column; align-items:flex-start; gap:20px; }
-    .welcome-film-copy .welcome-film-signoff { max-width:13ch; }
-  }
   @media(max-width:760px) {
     .welcome-banner { margin-bottom:24px; }
-    .welcome-film { padding-block:28px 32px; }
-    .welcome-film-copy { display:block; }
-    h1 { font-size:64px; max-width:12ch; }
-    .welcome-film-summary { padding-top:12px; gap:20px; }
-    .welcome-film-summary>p { font-size:14px; }
-    .welcome-film-actions { gap:20px; }
-    .welcome-film-copy .welcome-film-signoff { font-size:21px; margin-top:16px; max-width:none; padding:0; }
-    .welcome-media-row { display:block; margin-top:24px; margin-bottom:16px; }
-
+    .welcome-film { min-height:calc(100svh - 82px); padding-block:64px 100px; }
+    h1 { font-size:clamp(64px,13vw,86px); }
+    .welcome-film-description { font-size:15px; margin-top:24px; max-width:35ch; }
+    .welcome-film-actions { gap:18px 24px; margin-top:26px; }
+    .welcome-film-signoff { font-size:23px; margin-top:26px; }
+    .hero-shade { background:linear-gradient(90deg,rgba(4,15,23,.72),rgba(4,15,23,.45)),linear-gradient(0deg,rgba(4,15,23,.8),transparent 65%); }
+    .background-toggle { bottom:22px; }
   }
-  @media(max-width:370px) { h1 { font-size:56px; } .welcome-film-actions { gap:16px; } .film-play { padding-inline:12px; gap:8px; } .film-play small { font-size:9px; } }
 </style>

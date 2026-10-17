@@ -1,0 +1,171 @@
+---
+import { site } from '../data/site';
+import Icon from './Icon.astro';
+import { acceptsSignups, type SignupEvent } from '../data/signup-events';
+interface Props { event: SignupEvent; }
+const { event } = Astro.props;
+const sectionId = `signup-${event.id}`;
+const open = acceptsSignups(event);
+---
+<dialog id={sectionId} class="signup-modal" aria-labelledby={`${sectionId}-title`}>
+  <header class="signup-header">
+    <div><h2 id={`${sectionId}-title`}>{event.title}</h2><p>{event.dateLabel}</p></div>
+    <button type="button" data-signup-close aria-label="Close signup"><Icon name="close"/></button>
+  </header>
+  {open ? <form method="post" action="/api/training-signup/" class="signup-form" aria-label={`${event.title} signup`} novalidate>
+    <input type="hidden" name="eventId" value={event.id}/>
+    <ol class="signup-progress" aria-label="Signup progress"><li aria-current="step">1. Rider</li><li>2. Contact</li><li>3. Review</li></ol>
+    <fieldset data-step="0">
+      <legend tabindex="-1">Tell us about the rider.</legend>
+      <div class="signup-fields">
+        <label class="full">Rider’s name<input name="riderName" autocomplete="name" required maxlength="100" placeholder="First and last name"/></label>
+        <label>Riding experience<select name="experience" required><option value="">Choose experience level</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Competitive racer</option></select></label>
+        <label>Bike / engine size<input name="bike" maxlength="100" placeholder="Optional — e.g. YZ250F"/></label>
+      </div>
+    </fieldset>
+    <fieldset data-step="1" hidden>
+      <legend tabindex="-1">How can we reach you?</legend>
+      <p class="signup-note step-intro">For riders under 18, use a parent or guardian’s contact details.</p>
+      <div class="signup-fields">
+        <label>Email address<input name="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com"/></label>
+        <label>Phone number<input name="phone" type="tel" autocomplete="tel" required maxlength="40" placeholder="Your best contact number"/></label>
+        <label class="full">Anything we should know?<textarea name="notes" rows="3" maxlength="1000" placeholder="Optional — riding goals or questions"></textarea></label>
+      </div>
+    </fieldset>
+    <fieldset data-step="2" hidden>
+      <legend tabindex="-1">Ready for the next ride?</legend>
+      <dl class="signup-review"></dl>
+      <label class="signup-consent"><input type="checkbox" name="marketingOptIn"/><span>Email me about upcoming Club Ranch MX events and training. Optional; unsubscribe at any time.</span></label>
+      <p class="signup-note">We store your details to manage registration and event history. Future event emails are optional. <a href={`mailto:${site.email}`}>Contact us</a> to change preferences or request deletion.</p>
+      <p class="signup-note">This requests a place; it does not confirm a booking. The ranch team will follow up with availability, pricing, and next steps.</p>
+    </fieldset>
+    <label class="signup-trap" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"/></label>
+    <p class="signup-status" role="status" aria-live="polite" tabindex="-1"></p>
+    <div class="signup-actions"><button type="button" data-signup-back hidden>Back</button><button class="button" type="submit">Continue <Icon/></button></div>
+    <p class="signup-note signup-email">Prefer email? <a href={`mailto:${site.email}`}>Contact the ranch</a>.</p>
+  </form> : <p>Signup for this event is closed. <a href={`mailto:${site.email}`}>Contact the ranch</a> for upcoming opportunities.</p>}
+</dialog>
+<noscript><p>To sign up for {event.title}, <a href={`mailto:${site.email}`}>email the ranch</a>.</p></noscript>
+<script>
+  document.querySelectorAll<HTMLDialogElement>('.signup-modal').forEach(dialog => {
+    let opener: HTMLElement | null = null;
+    const openDialog = (trigger?: HTMLElement) => {
+      if (dialog.open) return;
+      opener = trigger || document.activeElement as HTMLElement;
+      dialog.showModal();
+    };
+    document.addEventListener('click', event => {
+      if (!(event.target instanceof Element) || !(event instanceof MouseEvent) || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const link = event.target.closest<HTMLAnchorElement>('a[href]');
+      if (!link) return;
+      const url = new URL(link.href);
+      if (url.origin !== location.origin || url.pathname !== location.pathname || url.hash !== `#${dialog.id}`) return;
+      event.preventDefault(); openDialog(link);
+    });
+    dialog.querySelector('[data-signup-close]')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('close', () => opener?.focus({ preventScroll:true }));
+    const openFromHash = () => {
+      if (location.hash === `#${dialog.id}` || (location.hash === '#training-signup' && document.querySelector('.signup-modal') === dialog)) openDialog();
+    };
+    window.addEventListener('hashchange', openFromHash);
+    openFromHash();
+    const form = dialog.querySelector<HTMLFormElement>('.signup-form');
+    if (!form) return;
+    const requestId = crypto.randomUUID();
+    const steps = [...form.querySelectorAll<HTMLFieldSetElement>('[data-step]')];
+    const back = form.querySelector<HTMLButtonElement>('[data-signup-back]')!;
+    const submit = form.querySelector<HTMLButtonElement>('[type="submit"]')!;
+    const status = form.querySelector<HTMLElement>('.signup-status')!;
+    let step = 0;
+    let busy = false;
+    let complete = false;
+    const showStep = () => {
+      steps.forEach((panel,index) => panel.hidden = index !== step);
+      form.querySelectorAll('.signup-progress li').forEach((item,index) => { if (index === step) item.setAttribute('aria-current','step'); else item.removeAttribute('aria-current'); });
+      back.hidden = step === 0;
+      submit.textContent = step === 2 ? 'Request a spot' : 'Continue';
+      if (step === 2) {
+        const summary = form.querySelector('.signup-review')!;
+        const data = new FormData(form);
+        summary.replaceChildren();
+        for (const [name,label] of [['riderName','Rider'],['experience','Experience'],['bike','Bike'],['email','Email'],['phone','Phone'],['notes','Notes']]) {
+          const term = document.createElement('dt'); term.textContent = label;
+          const value = document.createElement('dd'); value.textContent = String(data.get(name) || 'Not provided');
+          summary.append(term,value);
+        }
+      }
+      steps[step].querySelector<HTMLElement>('legend')?.focus();
+    };
+    const validate = (index: number) => {
+      for (const input of steps[index].querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('input,select,textarea')) {
+        if (input instanceof HTMLInputElement && input.name === 'riderName') input.setCustomValidity(input.value.trim() ? '' : 'Please enter the rider’s name.');
+        if (input instanceof HTMLInputElement && input.name === 'phone') input.setCustomValidity(/^[+()\d\s.-]{7,40}$/.test(input.value.trim()) ? '' : 'Please enter a valid phone number.');
+        if (!input.checkValidity()) { step = index; showStep(); input.reportValidity(); return false; }
+      }
+      return true;
+    };
+    form.addEventListener('input', event => { if (event.target instanceof HTMLInputElement) event.target.setCustomValidity(''); });
+    back.addEventListener('click', () => { if (!busy && !complete) { step--; showStep(); } });
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (busy || complete) return;
+      if (!validate(step)) return;
+      if (step < 2) { step++; showStep(); return; }
+      if (!validate(0) || !validate(1)) return;
+      const data = new FormData(form);
+      busy = true; submit.disabled = true; back.disabled = true;
+      steps.forEach(panel => panel.disabled = true);
+      submit.textContent = 'Sending request…'; status.textContent = '';
+      try {
+        const response = await fetch('/api/training-signup/', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({...Object.fromEntries(data),requestId,marketingOptIn:data.has('marketingOptIn')}), signal:AbortSignal.timeout(20000) });
+        const result: unknown = await response.json();
+        if (!result || typeof result !== 'object' || !('message' in result) || typeof result.message !== 'string') throw new SyntaxError('Invalid response');
+        if (!response.ok) throw new Error(result.message);
+        complete = true;
+        status.textContent = result.message;
+        steps.forEach(panel => panel.hidden = true);
+        form.querySelector<HTMLElement>('.signup-progress')!.hidden = true;
+        form.querySelector<HTMLElement>('.signup-actions')!.hidden = true;
+        form.reset(); status.focus();
+      } catch (error) {
+        status.textContent = error instanceof Error && !['TimeoutError','SyntaxError','TypeError'].includes(error.name) ? error.message : 'We could not confirm delivery. Your details are still here. Please contact post@clubranchmx.com before retrying.';
+        submit.disabled = false; back.disabled = false;
+        steps.forEach(panel => panel.disabled = false);
+        submit.textContent = 'Try again'; status.focus();
+      } finally { busy = false; }
+    });
+  });
+</script>
+<style>
+  :global(html:has(.signup-modal[open])) { overflow:hidden; }
+  .signup-modal { margin:auto; width:min(620px,calc(100% - 32px)); max-height:calc(100dvh - 32px); padding:30px; border:0; border-radius:16px; background:var(--surface); color:var(--ink); box-shadow:0 24px 80px #0005; overflow-y:auto; }
+  .signup-modal::backdrop { background:#04121ac4; }
+  .signup-header { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; padding-bottom:22px; border-bottom:1px solid var(--line); }
+  .signup-header h2 { font-size:36px; }
+  .signup-header p { margin-top:8px; color:var(--emphasis); font-size:14px; }
+  .signup-header button { display:grid; place-items:center; flex-shrink:0; width:44px; height:44px; border:1px solid var(--line); border-radius:50%; background:transparent; }
+  .signup-progress { display:flex; gap:24px; list-style:none; padding:0; margin:24px 0; font-size:12px; color:var(--muted); }
+  .signup-progress [aria-current] { color:var(--ink); font-weight:700; text-decoration:underline; text-underline-offset:7px; text-decoration-color:var(--emphasis); }
+  fieldset { border:0; padding:0; margin:0; min-width:0; }
+  legend { font-family:var(--display); font-size:28px; margin-bottom:20px; padding:0; }
+  .signup-fields { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  label { display:flex; flex-direction:column; gap:8px; font-size:13px; font-weight:600; }
+  .full { grid-column:1/-1; }
+  input,select,textarea { width:100%; min-width:0; min-height:48px; padding:12px; border:1px solid var(--line); border-radius:7px; font:inherit; font-weight:400; background:var(--surface); color:var(--ink); }
+  input::placeholder,textarea::placeholder { color:var(--muted); opacity:1; }
+  input:focus-visible,select:focus-visible,textarea:focus-visible { outline:2px solid var(--focus); outline-offset:3px; }
+  textarea { resize:vertical; }
+  .signup-note { font-size:12px; line-height:1.7; color:var(--muted); margin-top:16px; }
+  .signup-note a { text-decoration:underline; color:var(--ink); }
+  .step-intro { margin:0 0 18px; }
+  .signup-consent { margin-top:22px; flex-direction:row; align-items:flex-start; gap:12px; font-size:13px; line-height:1.6; font-weight:400; }
+  .signup-consent input { width:18px; height:18px; min-height:0; flex-shrink:0; margin-top:2px; accent-color:var(--emphasis); }
+  .signup-review { display:grid; grid-template-columns:90px minmax(0,1fr); gap:10px 18px; font-size:13px; line-height:1.6; margin:0; }
+  .signup-review dt { color:var(--muted); } .signup-review dd { margin:0; overflow-wrap:anywhere; white-space:pre-wrap; }
+  .signup-trap { position:absolute; left:-10000px; width:1px; height:1px; overflow:hidden; }
+  .signup-status:not(:empty) { margin-top:22px; font-size:14px; line-height:1.7; }
+  .signup-actions { display:flex; justify-content:flex-end; align-items:center; gap:18px; margin-top:28px; }
+  .signup-actions>button { min-height:48px; border:0; } .signup-actions>button:first-child { margin-right:auto; background:transparent; text-decoration:underline; }
+  [hidden] { display:none!important; }
+  @media(max-width:600px) { .signup-modal { padding:22px; width:calc(100% - 24px); max-height:calc(100dvh - 24px); } .signup-header h2 {font-size:30px;} .signup-fields {grid-template-columns:1fr;} .signup-progress {gap:20px;} }
+</style>

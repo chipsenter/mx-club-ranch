@@ -27,10 +27,10 @@ if (calendar) {
       try { const url = new URL(session.bookingUrl || ''); if (url.protocol === 'https:' && !inPast) { const link = document.createElement('a'); link.href = url.href; link.textContent = 'Check availability'; link.target = '_blank'; link.rel = 'noopener noreferrer'; row.append(link); } } catch { /* Incomplete links must not appear as bookable. */ }
       if (!inPast && session.signupUrl) {
         try {
-          const url = new URL(session.signupUrl);
-          if (url.protocol === 'mailto:') {
+          const url = new URL(session.signupUrl, window.location.href);
+          if (url.origin === window.location.origin && /^#signup-[a-z0-9-]+$/.test(url.hash) && document.getElementById(url.hash.slice(1))) {
             const link = document.createElement('a'); link.href = url.href;
-            link.textContent = 'Sign up by email'; row.append(link);
+            link.setAttribute('aria-haspopup', 'dialog'); link.textContent = 'Request a training spot'; row.append(link);
           }
         } catch { /* Invalid signup links are omitted. */ }
       }

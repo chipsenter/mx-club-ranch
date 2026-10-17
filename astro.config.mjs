@@ -6,5 +6,5 @@ export default defineConfig({
   devToolbar: { enabled: false },
   trailingSlash: "always",
   build: { format: "directory" },
-  vite: { plugins: [tailwindcss()] },
+  vite: { plugins: [tailwindcss()], server: { proxy: { "/api/training-signup/": "http://127.0.0.1:8787" } } },
 });

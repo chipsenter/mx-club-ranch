@@ -1,23 +1,121 @@
 ---
 import { swagItems, site } from '../data/site';
 import Icon from './Icon.astro';
+const inquiry = (name: string) => `mailto:${site.email}?subject=${encodeURIComponent(`Ranch swag inquiry: ${name}`)}&body=${encodeURIComponent(`Hi Club Ranch MX,
+
+I'm interested in the ${name}. Could you share pricing, available sizes, and ordering details?
+
+Thanks!`)}`;
 ---
 <section id="swag" class="swag-section wrap" aria-labelledby="swag-heading">
-  <div class="section-heading"><h2 id="swag-heading">Off the bike.<br/><em>Still ranch.</em></h2><div><p>Club Ranch MX swag. Wear a little ranch wherever you go.</p><p class="shop-status">Store opening soon · Save your favorites now.</p></div></div>
-  <div class="swag-grid">
-    {swagItems.map(item => <article class="swag-item">
-      <a class="swag-photo" href={item.image} target="_blank" rel="noopener noreferrer" aria-label={`View full-size ${item.name}`}><img src={item.image} alt={item.imageAlt} width={item.width} height={item.height} loading="lazy"/><span class="product-zoom"><Icon name="plus"/>View detail</span></a>
-      <div class="product-heading"><h3>{item.name}</h3><span>Price to be announced</span></div>
-      <p>{item.description}</p>
-      <div class="product-actions"><button type="button" class="button" data-add-cart={item.id} hidden>Add to cart <Icon name="plus"/></button><span>{item.id.includes('hoodie') ? 'Sizes announced at launch' : 'Availability announced at launch'}</span></div>
+  <div class="section-heading"><h2 id="swag-heading">Off the bike.<br/><em>Still ranch.</em></h2><div><p>A little ranch for every day. Find your favorite hats and hoodies.</p><button type="button" class="text-link collection-open" data-shop-open aria-haspopup="dialog">View all swag <span>({swagItems.length})</span><Icon/></button></div></div>
+  <div class="swag-featured">
+    {swagItems.slice(0,3).map(item => <button type="button" class="swag-preview" data-product-open={item.id} aria-haspopup="dialog"><span class="swag-preview-photo"><img src={item.image} alt={item.imageAlt} width={item.width} height={item.height} loading="lazy"/></span><span class="swag-preview-name">{item.name}<Icon name="plus"/></span><span class="swag-preview-category">{item.category}</span></button>)}
+  </div>
+  <p class="swag-availability">Explore the collection. Contact us for pricing, sizes and availability.</p>
+  <noscript><p><a href={`mailto:${site.email}`}>Email us about ranch swag</a>.</p></noscript>
+</section>
+<dialog class="swag-browser" aria-labelledby="swag-browser-title">
+  <header class="swag-browser-header"><h2 id="swag-browser-title">Ranch swag.</h2><button class="icon-button" type="button" data-shop-close aria-label="Close swag collection"><Icon name="close"/></button></header>
+  <div class="swag-browser-body">
+    <div class="swag-saved"><span data-shop-saved role="status" aria-live="polite"></span><button type="button" class="text-link" data-cart-open>View wishlist <Icon name="bag"/></button></div>
+    <div data-shop-list>
+      <p>Wear a little ranch wherever you go.</p>
+      <div class="swag-filters" aria-label="Filter swag">{['All','Hats','Hoodies'].map((category,i)=><button type="button" data-shop-filter={category} aria-pressed={i===0}>{category}</button>)}</div>
+      <p class="sr-only" data-shop-count role="status">{swagItems.length} items</p>
+      <div class="swag-catalog">{swagItems.map(item=><button type="button" class="swag-preview" data-product-open={item.id} data-category={item.category}><span class="swag-preview-photo"><img src={item.image} alt={item.imageAlt} width={item.width} height={item.height} loading="lazy"/></span><span class="swag-preview-name">{item.name}<Icon name="plus"/></span><span class="swag-preview-category">{item.category}</span></button>)}</div>
+    </div>
+    {swagItems.map(item=><article data-product-detail={item.id} hidden>
+      <button class="text-link swag-back" type="button" data-shop-back>Back to collection</button>
+      <div class="swag-detail-layout"><div><div class="swag-detail-photo"><img data-product-image src={item.image} alt={item.imageAlt} width={item.width} height={item.height} loading="lazy"/></div>
+      {item.views.length>0 && <div class="swag-views" aria-label={`${item.name} photo views`}>{[{image:item.image,label:'Front',alt:item.imageAlt},...item.views].map((view,i)=><button type="button" data-view-src={view.image} data-view-alt={view.alt} aria-pressed={i===0}>{view.label}</button>)}</div>}</div>
+      <div class="swag-detail-copy"><h3 tabindex="-1">{item.name}</h3><p>{item.description}</p><p class="swag-detail-note">Ask us about pricing, sizes and availability.</p><a class="button" href={inquiry(item.name)}>Ask about this item <Icon name="mail"/></a><button type="button" class="text-link" data-add-cart={item.id} hidden>Save to wishlist <Icon name="plus"/></button><small>Saved items are kept on this device. They do not reserve stock.</small></div></div>
     </article>)}
   </div>
-  <p class="swag-order-note">Your cart saves a wishlist on this device. Prices, sizes, and checkout are coming soon; adding an item does not reserve stock.</p>
-  <noscript><p>Enable JavaScript to save swag to your cart. Follow Instagram for store updates.</p></noscript>
-</section>
+</dialog>
 <dialog class="cart-drawer" aria-labelledby="cart-heading">
   <div class="cart-heading"><div><h2 id="cart-heading">Your cart.</h2><p data-cart-summary aria-live="polite" aria-atomic="true">No items yet</p></div><button class="icon-button" data-cart-close type="button" aria-label="Close cart"><Icon name="close"/></button></div>
   <div class="cart-content"><div data-cart-items></div><div class="cart-empty" data-cart-empty><Icon name="bag"/><h3>A little ranch.<br/>To take with you.</h3><p>Save a hat or hoodie here while we get the store ready.</p><button class="button" type="button" data-cart-browse>Explore the swag <Icon/></button></div></div>
   <div class="cart-footer" data-cart-footer hidden><div class="cart-total"><span>Total</span><strong>Pricing coming soon</strong></div><p>Saved on this device. Orders are not open yet. Nothing is reserved or charged.</p><button class="button checkout-pending" disabled>Checkout opens soon <Icon name="bag"/></button><a class="text-link" href={site.instagram} target="_blank" rel="noopener noreferrer">Follow for store updates <Icon name="instagram"/></a><button class="continue-shopping" type="button" data-cart-close>Continue browsing</button></div>
 </dialog>
 <div class="cart-toast" role="status" aria-live="polite" aria-atomic="true"><span data-cart-message></span><button type="button" data-cart-open>View cart <Icon/></button></div>
+
+<script>
+const shop = document.querySelector<HTMLDialogElement>('.swag-browser')!;
+const list = shop.querySelector<HTMLElement>('[data-shop-list]')!;
+let opener: HTMLElement | null = null;
+let productOpener: HTMLElement | null = null;
+function collection() {
+ list.hidden = false;
+ shop.querySelectorAll<HTMLElement>('[data-product-detail]').forEach(el => el.hidden = true);
+ shop.querySelector('.swag-browser-body')!.scrollTop = 0;
+}
+function openShop(trigger: HTMLElement) {
+ if (!shop.open) { opener = trigger; shop.showModal(); }
+}
+document.querySelectorAll<HTMLElement>('[data-shop-open]').forEach(button => button.addEventListener('click', () => { collection(); openShop(button); }));
+document.querySelectorAll<HTMLElement>('[data-product-open]').forEach(button => button.addEventListener('click', () => {
+ productOpener = button; collection(); list.hidden = true;
+ const detail = shop.querySelector<HTMLElement>(`[data-product-detail="${button.dataset.productOpen}"]`)!;
+ detail.hidden = false; openShop(button); detail.querySelector<HTMLElement>('h3')?.focus();
+}));
+shop.querySelector('[data-shop-close]')?.addEventListener('click', () => shop.close());
+shop.addEventListener('close', () => opener?.focus({preventScroll:true}));
+shop.querySelectorAll('[data-shop-back]').forEach(button => button.addEventListener('click', () => { collection(); if(productOpener && shop.contains(productOpener)) productOpener.focus(); else shop.querySelector<HTMLElement>('[data-shop-filter]')?.focus(); }));
+shop.querySelectorAll<HTMLElement>('[data-shop-filter]').forEach(button => button.addEventListener('click', () => {
+ const filter=button.dataset.shopFilter;let count=0;
+ shop.querySelectorAll<HTMLElement>('[data-category]').forEach(item=>{item.hidden=filter!=='All' && item.dataset.category!==filter;if(!item.hidden)count++;});
+ shop.querySelectorAll('[data-shop-filter]').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
+ shop.querySelector('[data-shop-count]')!.textContent=`${count} items`;
+}));
+shop.querySelectorAll<HTMLElement>('[data-view-src]').forEach(button=>button.addEventListener('click',()=>{
+ const detail=button.closest('[data-product-detail]')!;const img=detail.querySelector<HTMLImageElement>('[data-product-image]')!;
+ img.src=button.dataset.viewSrc!;img.alt=button.dataset.viewAlt!;
+ detail.querySelectorAll('[data-view-src]').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
+}));
+</script>
+<style>
+.collection-open { margin-top:24px; background:none; cursor:pointer; }
+.swag-featured { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:24px; }
+.swag-preview { display:block; text-align:left; padding:0; border:0; background:none; color:var(--ink); min-width:0; cursor:pointer; }
+.swag-preview-photo { display:block; aspect-ratio:1; overflow:hidden; background:#f5f5f7; border-radius:14px; box-shadow:0 12px 24px rgba(0,0,0,.12); }
+.swag-preview-photo img { width:100%;height:100%;object-fit:contain; transition:transform .25s ease; }
+.swag-preview:hover img { transform:scale(1.025); }
+.swag-preview-name { display:flex; align-items:center; justify-content:space-between; gap:12px; font-family:var(--display); font-size:28px; line-height:1.1; margin-top:18px; }
+.swag-preview-name :global(svg) { width:18px;flex-shrink:0; }
+.swag-preview-category { display:block; color:var(--muted); font-size:13px; margin-top:8px; }
+.swag-availability { font-size:13px; margin-top:24px; }
+.swag-browser { position:fixed; inset:0 0 0 auto; margin:0; width:min(980px,100%); max-width:100%; height:100dvh; max-height:100dvh; }
+.swag-browser[open] { display:flex; flex-direction:column; }
+.swag-browser-header { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:24px 32px; border-bottom:1px solid var(--line); }
+.swag-browser-header h2 { font-size:44px; }
+.swag-browser-body { padding:28px 32px 48px; overflow-y:auto; overscroll-behavior:contain; min-height:0; }
+.swag-saved { display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px;font-size:13px; }
+.swag-saved button { background:none;cursor:pointer;flex-shrink:0; }
+.swag-filters,.swag-views { display:flex; gap:10px; margin-block:22px; }
+.swag-filters button,.swag-views button { min-height:44px; padding:10px 20px; border:1px solid var(--line); border-radius:6px; color:var(--ink);background:transparent;cursor:pointer; }
+.swag-filters button[aria-pressed=true],.swag-views button[aria-pressed=true] { background:var(--ink);color:var(--paper);border-color:var(--ink); }
+.swag-catalog { display:grid; grid-template-columns:repeat(3,minmax(0,1fr));gap:30px 20px; }
+.swag-catalog .swag-preview-name { font-size:24px; }
+.swag-back { background:none; cursor:pointer; margin-bottom:28px; }
+.swag-detail-layout { display:grid;grid-template-columns:1.2fr 1fr;gap:32px;align-items:start; }
+.swag-detail-photo { background:#f5f5f7;border-radius:14px;overflow:hidden; }
+.swag-detail-photo img { width:100%;height: min(58vh,580px);object-fit:contain; }
+.swag-detail-copy h3 { font-size:40px;line-height:1.05; }
+.swag-detail-copy p { margin-top:20px; }
+.swag-detail-note { font-size:13px; }
+.swag-detail-copy .button { margin-block:26px 20px; }
+.swag-detail-copy>.text-link { display:flex;width:max-content;background:none;cursor:pointer; }
+.swag-detail-copy small { display:block;color:var(--muted);font-size:12px;margin-top:14px; }
+[hidden] { display:none!important; }
+@media(max-width:760px) {
+ .swag-featured { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; gap:18px; padding-bottom:20px; }
+ .swag-featured>.swag-preview { flex:0 0 80%; scroll-snap-align:start; }
+ .swag-browser-header { padding:20px; }.swag-browser-body { padding:22px 20px 40px; }
+ .swag-catalog { grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 14px; }
+ .swag-catalog .swag-preview-name { font-size:22px; }
+ .swag-detail-layout { grid-template-columns:1fr;gap:24px; }
+ .swag-detail-photo img { height:43vh; }
+}
+@media(prefers-reduced-motion:reduce) { .swag-preview-photo img { transition:none; } }
+</style>

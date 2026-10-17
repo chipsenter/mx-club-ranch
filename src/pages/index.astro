@@ -13,6 +13,8 @@ import EventSection from '../components/EventSection.astro';
 import RanchMemoriesFilm from '../components/RanchMemoriesFilm.astro';
 import WelcomeFilm from '../components/WelcomeFilm.astro';
 import NewsSection from '../components/NewsSection.astro';
+import TrainingSignup from '../components/TrainingSignup.astro';
+import { signupEvents, acceptsSignups, signupHref } from '../data/signup-events';
 import MyPassion from '../components/MyPassion.astro';
 import { site, upcomingEvents, pastEvents, trainingSessions, eventPhotos } from '../data/site';
 const phoneHref = `tel:${site.phone.replace(/[^+\d]/g, '')}`;
@@ -35,7 +37,7 @@ const hasEmbed = hasBooking && safeHttps(site.bookingEmbedUrl);
     } catch {}
   </script>
   <link rel="icon" type="image/png" href="/images/club-ranch-logo.png"/>
-  <link rel="preload" as="image" href="/images/club-ranch-welcome-poster.jpg" fetchpriority="high"/>
+  <link rel="preload" as="image" href="/images/club-ranch-welcome-wide-poster.jpg" fetchpriority="high"/>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -58,7 +60,7 @@ const hasEmbed = hasBooking && safeHttps(site.bookingEmbedUrl);
   <section id="training" class="training-section wrap" aria-labelledby="training-heading">
     <div class="section-heading"><h2 id="training-heading">Motocross training.<br/>Find your next ride.</h2><p>Make time for the ride. Explore the training calendar and find your next opportunity to get on the track.</p></div>
     <div class="training-layout">
-      <div class="training-copy"><Icon name="calendar"/><h3>Train at the ranch.</h3><p>A dedicated space for Colorado riders to plan training and take the next step on the bike. Welcoming riders from Denver, Broomfield, Longmont, Fort Collins, and Boulder.</p><div class="booking-state"><span class="status-label">{hasBooking ? 'Book your training' : 'Train with Chisholm · November 21–22'}</span><p>{hasBooking ? 'Choose an available session in our booking calendar. Your reservation is confirmed by the booking provider.' : 'Select November 21 or 22, 2026 in the calendar to request signup details by email.'}</p></div>
+      <div class="training-copy"><Icon name="calendar"/><h3>Train at the ranch.</h3><p>A dedicated space for Colorado riders to plan training and take the next step on the bike. Welcoming riders from Denver, Broomfield, Longmont, Fort Collins, and Boulder.</p><div class="booking-state"><span class="status-label">{hasBooking ? 'Book your training' : 'Upcoming event signup'}</span><p>{hasBooking ? 'Choose an available session in our booking calendar. Your reservation is confirmed by the booking provider.' : 'Choose an event in the calendar, then select signup to request a spot.'}</p></div>
       {hasBooking ? <a class="button" href={site.bookingUrl} target="_blank" rel="noopener noreferrer">Open booking calendar <Icon name="external"/></a> : <a class="text-link" href="#contact">Keep in touch <Icon/></a>}
       </div>
       <div class="calendar" data-calendar data-sessions={JSON.stringify(trainingSessions)}>
@@ -70,6 +72,8 @@ const hasEmbed = hasBooking && safeHttps(site.bookingEmbedUrl);
         <noscript><p>Enable JavaScript to browse the calendar. {hasBooking ? <a href={site.bookingUrl}>Open the booking page.</a> : 'Training dates will be announced soon.'}</p></noscript>
       </div>
     </div>
+    <div class="event-signup-actions">{signupEvents.filter(event => acceptsSignups(event)).map(event => <a class="button" href={signupHref(event)} aria-haspopup="dialog">Sign up · {event.title}<Icon/></a>)}</div>
+    {signupEvents.filter(event => acceptsSignups(event)).map(event => <TrainingSignup event={event}/>)}
     {hasEmbed && <details class="booking-embed"><summary>Book here on the page <Icon name="chevron"/></summary><p>Booking is provided by an external service. <a href={site.bookingUrl} target="_blank" rel="noopener noreferrer">Open it in a new tab</a> if it does not load.</p><iframe data-src={site.bookingEmbedUrl} title="Book Club Ranch MX training" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></details>}
   </section>
   <div class="wrap"><EventSection id="events" title="Upcoming events." intro="A reason to get together. A reason to ride. Keep an eye on what’s ahead." events={upcomingEvents}/></div>
@@ -79,7 +83,7 @@ const hasEmbed = hasBooking && safeHttps(site.bookingEmbedUrl);
     <div class="photo-carousel" role="region" aria-roledescription="carousel" aria-label="Event photos">
     <div id="event-photo-track" class:list={['photo-gallery', { 'single-photo': eventPhotos.length === 1 }]} tabindex="0" aria-label="Event photos — swipe, scroll, or use left and right arrow keys">
       {eventPhotos.map((photo, index) => <figure role="group" aria-roledescription="slide" aria-label={`${index + 1} of ${eventPhotos.length}`}>
-        <a class:list={{ 'photo-contain': 'fit' in photo && photo.fit === 'contain' }} href={photo.image} target="_blank" rel="noopener noreferrer" aria-label={`View full-size photo: ${photo.caption}`}><img src={photo.image} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy"/></a>
+        <a class:list={{ 'photo-contain': 'fit' in photo && photo.fit === 'contain' }} href={photo.image} target="_blank" rel="noopener noreferrer" aria-label={`View full-size photo: ${photo.caption}`}><img src={photo.image} alt={photo.alt} width={photo.width} height={photo.height} style={'position' in photo ? { objectPosition: photo.position } : undefined} loading="lazy"/></a>
         <figcaption>{photo.caption}</figcaption>
       </figure>)}
     </div>
@@ -101,3 +105,5 @@ const hasEmbed = hasBooking && safeHttps(site.bookingEmbedUrl);
 </script>
 </body>
 </html>
+
+<style>.event-signup-actions{display:flex;flex-wrap:wrap;gap:16px;margin-top:28px}</style>

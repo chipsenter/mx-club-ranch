@@ -36,3 +36,8 @@
 - `club-ranch-forkner-wide-poster.jpg` and `public/videos/club-ranch-forkner-wide.mp4`: poster and MP4 from user-supplied Club Ranch_Reel 4_CLUB & FORKNER_CV1_WIDE.mov, replacing Reel 2 in Past events.
 
 - `jordan-story-track.jpeg`: user-supplied IMG_7124.jpeg, shown beside the Jordan Jackson story heading. The accompanying thumbnail reuses the previously supplied `jordanmx1.jpg`. Both open their full images.
+
+- Event gallery update October 16, 2026: replaced the three mwccreative entries with user-supplied IMG_7127.jpeg (`ranch-event-autumn-jump.jpeg`), IMG_7126.jpeg (`ranch-event-autumn-turn.jpeg`), IMG_7125.jpeg (`ranch-event-autumn-laps.jpeg`), and reused IMG_7124.jpeg (`jordan-story-track.jpeg`). Original images retained; portrait images displayed uncropped.
+
+## Swag collection additions
+Seven Custom Ink product mockups supplied by the user on October 16, 2026. Copied unchanged to ranch-black-camo-hat.png, ranch-white-camo-hat.png, ranch-grey-crop-hoodie.png, ranch-green-hoodie.png, ranch-camo-hoodie-back.png, ranch-green-crop-back.png, and ranch-green-crop-hoodie.png. No pricing, sizing or inventory claims supplied.
