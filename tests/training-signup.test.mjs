@@ -53,7 +53,7 @@ test('storage outage fails before sending email',async()=>{
 });
 test('invalid inputs, cross-origin requests and limits never store or send',async()=>{
  const env=environment(async()=>assert.fail('Must not send'));
- for(const data of [{...valid(),email:'bad'},{...valid(),experience:'fake'},{...valid(),website:'spam'},{...valid(),notes:'x'.repeat(9000)},{...valid(),marketingOptIn:'yes'},{...valid(),requestId:'bad'}])assert.ok((await worker.fetch(request(data),env)).status>=400);
+ for(const data of [{...valid(),email:'bad'},{...valid(),experience:'fake'},{...valid(),website:'spam'},{...valid(),notes:'x'.repeat(9000)},{...valid(),marketingOptIn:'yes'},{...valid(),requestId:'bad'},{...valid(),phone:'+46 70 123 45 67'},{...valid(),phone:'123-456-7890'},{...valid(),phone:'720 245 058'},{...valid(),phone:'720-245-0588 ext 2'}])assert.ok((await worker.fetch(request(data),env)).status>=400);
  assert.equal((await worker.fetch(request(valid(),'https://example.com'),env)).status,403);
  assert.equal((await worker.fetch(request(valid()),environment(undefined,false))).status,429);
  assert.equal(env.db.prepare('SELECT COUNT(*) AS n FROM registrations').get().n,0);
@@ -128,4 +128,11 @@ test('invalid waiver files are rejected before saving',async()=>{
  for(const w of [{type:'application/pdf',data:html},{type:'text/html',data:html},{type:'application/pdf',data:'not base64!'},'x',{type:'application/pdf',data:Buffer.alloc(9*1024*1024,37).toString('base64')}])
   assert.equal((await worker.fetch(request({...valid(),waiver:w}),env)).status>=400,true);
  assert.equal(env.db.prepare('SELECT COUNT(*) AS n FROM registrations').get().n,0);
+});
+
+test('US phone numbers are accepted in common formats and stored consistently',async()=>{
+ for(const phone of ['7202450588','720-245-0588','(720) 245-0588','+1 720 245 0588','1.720.245.0588']){
+  const env=environment();assert.equal((await worker.fetch(request({...valid(),phone}),env)).status,200,phone);
+  assert.equal(env.db.prepare('SELECT phone FROM registrations').get().phone,'(720) 245-0588');
+ }
 });

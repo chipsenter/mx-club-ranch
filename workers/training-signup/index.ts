@@ -1,5 +1,6 @@
 import { signupEvents, acceptsSignups } from '../../src/data/signup-events.ts';
 import { waiver } from '../../src/data/waiver.ts';
+import { formatUsPhone } from '../../src/data/phone.ts';
 const reply = (status: number, message: string) => Response.json({ message }, { status, headers: { 'Cache-Control': 'no-store' } });
 const levels = ['Beginner', 'Intermediate', 'Advanced', 'Competitive racer'];
 // Text fields fit in 8 KB; a signed waiver adds its base64 size (4/3 of the file) plus a little JSON.
@@ -68,7 +69,9 @@ export default {
       if (typeof value !== 'string' || value.length > max) return reply(400, 'Please check your form fields.');
       fields[key] = value.trim();
     }
-    if (!fields.riderName || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email) || !/^[+()\d\s.-]{7,40}$/.test(fields.phone) || !levels.includes(fields.experience)) return reply(400, 'Please enter your name, valid email, phone number, and riding experience.');
+    const phone = formatUsPhone(fields.phone);
+    if (!fields.riderName || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email) || !phone || !levels.includes(fields.experience)) return reply(400, 'Please enter your name, valid email, a 10-digit US phone number, and riding experience.');
+    fields.phone = phone;
     const signedWaiver = readWaiver(data.waiver, fields.riderName);
     if (signedWaiver === false) return reply(400, `The signed waiver must be a PDF or photo under ${waiver.maxBytes / 1024 / 1024} MB.`);
     if (data.marketingOptIn !== undefined && typeof data.marketingOptIn !== 'boolean') return reply(400, 'Invalid email preference.');

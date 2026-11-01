@@ -3,6 +3,7 @@ import { site } from '../data/site';
 import Icon from './Icon.astro';
 import { acceptsSignups, type SignupEvent } from '../data/signup-events';
 import { waiver } from '../data/waiver';
+import { phoneMaxLength } from '../data/phone';
 interface Props { event: SignupEvent; }
 const { event } = Astro.props;
 const sectionId = `signup-${event.id}`;
@@ -31,7 +32,7 @@ const waiverMb = waiver.maxBytes / 1024 / 1024;
       <p class="signup-note step-intro">For riders under 18, use a parent or guardian’s contact details.</p>
       <div class="signup-fields">
         <label>Email address<input name="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com"/></label>
-        <label>Phone number<input name="phone" type="tel" autocomplete="tel" required maxlength="40" placeholder="Your best contact number"/></label>
+        <label>Phone number<input name="phone" type="tel" inputmode="tel" autocomplete="tel-national" required maxlength={phoneMaxLength} placeholder="(720) 555-0123"/></label>
         <label class="full">Anything we should know?<textarea name="notes" rows="3" maxlength="1000" placeholder="Optional — riding goals or questions"></textarea></label>
       </div>
     </fieldset>
@@ -53,12 +54,13 @@ const waiverMb = waiver.maxBytes / 1024 / 1024;
     </fieldset>
     <label class="signup-trap" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"/></label>
     <p class="signup-status" role="status" aria-live="polite" tabindex="-1"></p>
-    <div class="signup-actions"><button type="button" data-signup-back hidden>Back</button><button class="button" type="submit">Continue <Icon/></button></div>
     <p class="signup-note signup-email">Prefer email? <a href={`mailto:${site.email}`}>Contact the ranch</a>.</p>
+    <div class="signup-actions"><button type="button" data-signup-back hidden>Back</button><button class="button" type="submit">Continue <Icon/></button></div>
   </form> : <p>Signup for this event is closed. <a href={`mailto:${site.email}`}>Contact the ranch</a> for upcoming opportunities.</p>}
 </dialog>
 <noscript><p>To sign up for {event.title}, <a href={`mailto:${site.email}`}>email the ranch</a>.</p></noscript>
 <script>
+  import { formatUsPhone } from '../data/phone';
   document.querySelectorAll<HTMLDialogElement>('.signup-modal').forEach(dialog => {
     let opener: HTMLElement | null = null;
     const openDialog = (trigger?: HTMLElement) => {
@@ -135,12 +137,26 @@ const waiverMb = waiver.maxBytes / 1024 / 1024;
       for (const input of steps[index].querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('input,select,textarea')) {
         if (input instanceof HTMLInputElement && input.name === 'riderName') input.setCustomValidity(input.value.trim() ? '' : 'Please enter the rider’s name.');
         if (input === waiverInput) checkWaiver();
-        if (input instanceof HTMLInputElement && input.name === 'phone') input.setCustomValidity(/^[+()\d\s.-]{7,40}$/.test(input.value.trim()) ? '' : 'Please enter a valid phone number.');
+        if (input instanceof HTMLInputElement && input.name === 'phone') {
+          const phone = formatUsPhone(input.value.trim());
+          if (phone) input.value = phone;
+          input.setCustomValidity(phone ? '' : 'Please enter a 10-digit US phone number, e.g. (720) 555-0123.');
+        }
         if (!input.checkValidity()) { step = index; showStep(); input.reportValidity(); return false; }
       }
       return true;
     };
-    form.addEventListener('input', event => { if (event.target instanceof HTMLInputElement) event.target.setCustomValidity(''); });
+    form.addEventListener('input', event => {
+      if (!(event.target instanceof HTMLInputElement)) return;
+      event.target.setCustomValidity('');
+      // Phone: keep only characters a US number can contain.
+      if (event.target.name === 'phone') event.target.value = event.target.value.replace(/[^+\d\s().-]/g, '');
+    });
+    form.querySelector<HTMLInputElement>('input[name="phone"]')!.addEventListener('blur', event => {
+      const input = event.target as HTMLInputElement;
+      const phone = formatUsPhone(input.value.trim());
+      if (phone) input.value = phone;
+    });
     back.addEventListener('click', () => { if (!busy && !complete) { step--; showStep(); } });
     form.addEventListener('submit', async event => {
       event.preventDefault();
@@ -178,7 +194,7 @@ const waiverMb = waiver.maxBytes / 1024 / 1024;
 </script>
 <style>
   :global(html:has(.signup-modal[open])) { overflow:hidden; }
-  .signup-modal { margin:auto; width:min(620px,calc(100% - 32px)); max-height:calc(100dvh - 32px); padding:30px; border:0; border-radius:16px; background:var(--surface); color:var(--ink); box-shadow:0 24px 80px #0005; overflow-y:auto; }
+  .signup-modal { --pad:30px; margin:auto; width:min(620px,calc(100% - 32px)); max-height:calc(100dvh - 32px); padding:var(--pad); overscroll-behavior:contain; -webkit-overflow-scrolling:touch; border:0; border-radius:16px; background:var(--surface); color:var(--ink); box-shadow:0 24px 80px #0005; overflow-y:auto; }
   .signup-modal::backdrop { background:#04121ac4; }
   .signup-header { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; padding-bottom:22px; border-bottom:1px solid var(--line); }
   .signup-header h2 { font-size:36px; }
@@ -218,8 +234,9 @@ const waiverMb = waiver.maxBytes / 1024 / 1024;
   .waiver-upload small { font-weight:400; font-size:12px; color:var(--muted); overflow-wrap:anywhere; }
   .signup-trap { position:absolute; left:-10000px; width:1px; height:1px; overflow:hidden; }
   .signup-status:not(:empty) { margin-top:22px; font-size:14px; line-height:1.7; }
-  .signup-actions { display:flex; justify-content:flex-end; align-items:center; gap:18px; margin-top:28px; }
+  /* Pinned to the bottom of the popup so Continue / Request a spot is always reachable on small screens. */
+  .signup-actions { position:sticky; bottom:calc(-1 * var(--pad)); z-index:1; display:flex; justify-content:flex-end; align-items:center; gap:18px; margin:28px calc(-1 * var(--pad)) calc(-1 * var(--pad)); padding:14px var(--pad) calc(14px + env(safe-area-inset-bottom)); background:var(--surface); border-top:1px solid var(--line); }
   .signup-actions>button { min-height:48px; border:0; } .signup-actions>button:first-child { margin-right:auto; background:transparent; text-decoration:underline; }
   [hidden] { display:none!important; }
-  @media(max-width:600px) { .signup-modal { padding:22px; width:calc(100% - 24px); max-height:calc(100dvh - 24px); } .signup-header h2 {font-size:30px;} .signup-fields {grid-template-columns:1fr;} .signup-progress {gap:20px;} }
+  @media(max-width:600px) { .signup-modal { --pad:22px; width:calc(100% - 24px); max-height:calc(100dvh - 24px); } .signup-header h2 {font-size:30px;} .signup-fields {grid-template-columns:1fr;} .signup-progress {gap:20px;} }
 </style>
