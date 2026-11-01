@@ -48,3 +48,9 @@ Set `signupOpen: false` to close an event early. Events automatically stop accep
 Cloudflare Email Sending was enabled for clubranchmx.com on October 16, 2026. `RIDER_RECEIPTS_ENABLED` is `true`; the binding allows only post@clubranchmx.com as sender and supports rider recipients. Apply migration 0002 before deploying. Local preview email remains simulated; do not enable remote email in local previews by default. Provider acceptance is not inbox-delivery confirmation.
 
 Each new saved signup sends an acknowledgment to its normalized submitted email independently of marketing consent and the staff notification. The wording confirms receipt only, not a booked place. Duplicate request IDs do not resend. `receipt_status` records not_sent/pending/accepted/failed; accepted means provider acceptance, not inbox delivery. Historical signups are not automatically emailed. Failed sends require operator follow-up; no automatic retry is configured. Receipt messages deliberately omit user-supplied names and notes.
+
+## Liability waiver
+
+The review step offers the season waiver PDF (`public/waivers/clubranchmx-waiver-2026.pdf`) and an optional upload of a signed copy. The PDF is rendered from `scripts/waiver/clubranchmx-waiver-2026.html` with headless Chrome (print to PDF, Letter, no header/footer). For a new season, copy the HTML, change the year, render the PDF, and update `src/data/waiver.ts`.
+
+An uploaded waiver (PDF, JPEG, PNG, WebP or HEIC, up to 8 MB, checked by file signature) is attached to the staff notification email only; it is never stored in D1 or elsewhere, so the inbox is the record. `waiver_status` is none/pending/emailed/failed. If the attachment is rejected, staff still receive the signup without it, and the rider is told to bring a paper copy. Apply migration 0003 before deploying.

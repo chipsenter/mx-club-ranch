@@ -20,6 +20,8 @@ const paths: Record<string, string> = {
   calendar: 'M8 3v4m8-4v4M4 10h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z',
   pin: 'M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Zm-5 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z',
   external: 'M14 4h6v6m0-6L10 14M10 4H4v16h16v-6',
+  download: 'M12 4v11m-5-5 5 5 5-5M5 20h14',
+  upload: 'M12 16V5m-5 5 5-5 5 5M5 20h14',
 };
 ---
 <svg class={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={paths[name] || paths.arrow}/></svg>

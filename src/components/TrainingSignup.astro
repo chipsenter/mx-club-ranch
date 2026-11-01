@@ -2,10 +2,13 @@
 import { site } from '../data/site';
 import Icon from './Icon.astro';
 import { acceptsSignups, type SignupEvent } from '../data/signup-events';
+import { waiver } from '../data/waiver';
 interface Props { event: SignupEvent; }
 const { event } = Astro.props;
 const sectionId = `signup-${event.id}`;
 const open = acceptsSignups(event);
+const waiverAccept = Object.keys(waiver.types).join(',');
+const waiverMb = waiver.maxBytes / 1024 / 1024;
 ---
 <dialog id={sectionId} class="signup-modal" aria-labelledby={`${sectionId}-title`}>
   <header class="signup-header">
@@ -35,6 +38,15 @@ const open = acceptsSignups(event);
     <fieldset data-step="2" hidden>
       <legend tabindex="-1">Ready for the next ride?</legend>
       <dl class="signup-review"></dl>
+      <section class="signup-waiver" aria-labelledby={`${sectionId}-waiver`}>
+        <h3 id={`${sectionId}-waiver`}>{waiver.season} liability waiver</h3>
+        <p>Every rider needs a signed waiver at the track. Riders under 18 also need a parent or guardian signature.</p>
+        <a class="waiver-download" href={waiver.href} download target="_blank" rel="noopener"><Icon name="download"/><span>Download waiver <small>PDF · print, sign, bring it on ride day</small></span></a>
+        <label class="waiver-upload"><span><Icon name="upload"/> Already signed? Upload it <em>Optional</em></span>
+          <input type="file" name="waiverFile" accept={waiverAccept} data-max-bytes={waiver.maxBytes}/>
+          <small>Photo or PDF, up to {waiverMb} MB. We’ll email it to the ranch team with your signup.</small>
+        </label>
+      </section>
       <label class="signup-consent"><input type="checkbox" name="marketingOptIn"/><span>Email me about upcoming Club Ranch MX events and training. Optional; unsubscribe at any time.</span></label>
       <p class="signup-note">We store your details to manage registration and event history. Future event emails are optional. <a href={`mailto:${site.email}`}>Contact us</a> to change preferences or request deletion.</p>
       <p class="signup-note">This requests a place; it does not confirm a booking. The ranch team will follow up with availability, pricing, and next steps.</p>
@@ -76,6 +88,28 @@ const open = acceptsSignups(event);
     const back = form.querySelector<HTMLButtonElement>('[data-signup-back]')!;
     const submit = form.querySelector<HTMLButtonElement>('[type="submit"]')!;
     const status = form.querySelector<HTMLElement>('.signup-status')!;
+    const waiverInput = form.querySelector<HTMLInputElement>('input[name="waiverFile"]')!;
+    const waiverNote = waiverInput.parentElement!.querySelector('small')!;
+    const waiverHint = waiverNote.textContent!;
+    const updateWaiverNote = () => {
+      const file = waiverInput.files?.[0];
+      waiverNote.textContent = file ? `Attached: ${file.name}` : waiverHint;
+    };
+    const checkWaiver = () => {
+      const file = waiverInput.files?.[0];
+      const types = waiverInput.accept.split(',');
+      // Some phones send HEIC photos without a type; the server checks the file contents either way.
+      const ok = !file || (file.size <= Number(waiverInput.dataset.maxBytes) && (types.includes(file.type) || (!file.type && /\.(heic|heif)$/i.test(file.name))));
+      waiverInput.setCustomValidity(ok ? '' : 'Please choose a photo or PDF of the signed waiver under ' + Number(waiverInput.dataset.maxBytes) / 1048576 + ' MB.');
+      return ok;
+    };
+    waiverInput.addEventListener('change', () => { checkWaiver(); updateWaiverNote(); });
+    const readWaiver = (file: File) => new Promise<{ type: string; data: string }>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve({ type: file.type || (/\.heif$/i.test(file.name) ? 'image/heif' : 'image/heic'), data: String(reader.result).split(',')[1] || '' });
+      reader.onerror = () => reject(new Error('We could not read the waiver file. Choose it again or bring a paper copy.'));
+      reader.readAsDataURL(file);
+    });
     let step = 0;
     let busy = false;
     let complete = false;
@@ -94,11 +128,13 @@ const open = acceptsSignups(event);
           summary.append(term,value);
         }
       }
+      if (step === 2) updateWaiverNote();
       steps[step].querySelector<HTMLElement>('legend')?.focus();
     };
     const validate = (index: number) => {
       for (const input of steps[index].querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('input,select,textarea')) {
         if (input instanceof HTMLInputElement && input.name === 'riderName') input.setCustomValidity(input.value.trim() ? '' : 'Please enter the rider’s name.');
+        if (input === waiverInput) checkWaiver();
         if (input instanceof HTMLInputElement && input.name === 'phone') input.setCustomValidity(/^[+()\d\s.-]{7,40}$/.test(input.value.trim()) ? '' : 'Please enter a valid phone number.');
         if (!input.checkValidity()) { step = index; showStep(); input.reportValidity(); return false; }
       }
@@ -113,11 +149,15 @@ const open = acceptsSignups(event);
       if (step < 2) { step++; showStep(); return; }
       if (!validate(0) || !validate(1)) return;
       const data = new FormData(form);
+      data.delete('waiverFile');
+      const waiverFile = waiverInput.files?.[0];
       busy = true; submit.disabled = true; back.disabled = true;
       steps.forEach(panel => panel.disabled = true);
       submit.textContent = 'Sending request…'; status.textContent = '';
       try {
-        const response = await fetch('/api/training-signup/', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({...Object.fromEntries(data),requestId,marketingOptIn:data.has('marketingOptIn')}), signal:AbortSignal.timeout(20000) });
+        const signedWaiver = waiverFile ? await readWaiver(waiverFile) : undefined;
+        if (waiverFile) submit.textContent = 'Uploading waiver…';
+        const response = await fetch('/api/training-signup/', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({...Object.fromEntries(data),requestId,marketingOptIn:data.has('marketingOptIn'),waiver:signedWaiver}), signal:AbortSignal.timeout(waiverFile ? 90000 : 20000) });
         const result: unknown = await response.json();
         if (!result || typeof result !== 'object' || !('message' in result) || typeof result.message !== 'string') throw new SyntaxError('Invalid response');
         if (!response.ok) throw new Error(result.message);
@@ -126,7 +166,7 @@ const open = acceptsSignups(event);
         steps.forEach(panel => panel.hidden = true);
         form.querySelector<HTMLElement>('.signup-progress')!.hidden = true;
         form.querySelector<HTMLElement>('.signup-actions')!.hidden = true;
-        form.reset(); status.focus();
+        form.reset(); updateWaiverNote(); status.focus();
       } catch (error) {
         status.textContent = error instanceof Error && !['TimeoutError','SyntaxError','TypeError'].includes(error.name) ? error.message : 'We could not confirm delivery. Your details are still here. Please contact post@clubranchmx.com before retrying.';
         submit.disabled = false; back.disabled = false;
@@ -162,6 +202,20 @@ const open = acceptsSignups(event);
   .signup-consent input { width:18px; height:18px; min-height:0; flex-shrink:0; margin-top:2px; accent-color:var(--emphasis); }
   .signup-review { display:grid; grid-template-columns:90px minmax(0,1fr); gap:10px 18px; font-size:13px; line-height:1.6; margin:0; }
   .signup-review dt { color:var(--muted); } .signup-review dd { margin:0; overflow-wrap:anywhere; white-space:pre-wrap; }
+  .signup-waiver { margin-top:24px; padding:18px; border:1px solid var(--line); border-radius:12px; }
+  .signup-waiver h3 { font-family:var(--display); font-size:22px; margin:0 0 6px; }
+  .signup-waiver>p { font-size:13px; line-height:1.6; color:var(--muted); margin:0 0 14px; }
+  .waiver-download { display:flex; align-items:center; gap:14px; min-height:56px; padding:10px 16px; border-radius:9px; background:var(--ink); color:var(--surface); font-weight:700; font-size:15px; text-decoration:none; }
+  .waiver-download svg { flex-shrink:0; width:28px; height:28px; padding:4px; border:1.5px solid currentColor; border-radius:50%; }
+  .waiver-download small { display:block; font-weight:400; font-size:12px; opacity:.8; }
+  .waiver-download:hover svg { transform:translateY(2px); } .waiver-download svg { transition:transform .15s; }
+  .waiver-download:focus-visible { outline:2px solid var(--focus); outline-offset:3px; }
+  .waiver-upload { margin-top:16px; }
+  .waiver-upload>span { display:flex; align-items:center; gap:8px; } .waiver-upload>span svg { width:18px; height:18px; }
+  .waiver-upload em { font-style:normal; font-weight:400; color:var(--muted); }
+  .waiver-upload input { padding:10px; min-height:0; cursor:pointer; }
+  .waiver-upload input::file-selector-button { margin-right:12px; padding:8px 14px; border:1px solid var(--line); border-radius:6px; background:transparent; color:var(--ink); font:inherit; font-weight:600; cursor:pointer; }
+  .waiver-upload small { font-weight:400; font-size:12px; color:var(--muted); overflow-wrap:anywhere; }
   .signup-trap { position:absolute; left:-10000px; width:1px; height:1px; overflow:hidden; }
   .signup-status:not(:empty) { margin-top:22px; font-size:14px; line-height:1.7; }
   .signup-actions { display:flex; justify-content:flex-end; align-items:center; gap:18px; margin-top:28px; }

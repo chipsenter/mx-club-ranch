@@ -9,6 +9,7 @@ const request = (data, origin='https://clubranchmx.com') => new Request('https:/
 function environment(send=async()=>({}), allowed=true) {
  const db=new DatabaseSync(':memory:'); db.exec(readFileSync(new URL('../workers/training-signup/migrations/0001_rider_contacts.sql',import.meta.url),'utf8'));
  db.exec(readFileSync(new URL('../workers/training-signup/migrations/0002_rider_receipts.sql',import.meta.url),'utf8'));
+ db.exec(readFileSync(new URL('../workers/training-signup/migrations/0003_rider_waivers.sql',import.meta.url),'utf8'));
  const prepare = sql => ({
    bind(...args) {
      return {
@@ -96,4 +97,35 @@ test('staff notification failure does not prevent rider acknowledgment',async()=
  const env=environment(async message=>{if(message.to==='mxjj17@gmail.com')throw Error('Unavailable')});env.RIDER_RECEIPTS_ENABLED='true';
  await worker.fetch(request(valid()),env);
  const row=env.db.prepare('SELECT * FROM registrations').get();assert.equal(row.receipt_status,'accepted');assert.equal(row.notification_status,'failed');
+});
+
+const pdf=Buffer.from('%PDF-1.4 signed waiver test file').toString('base64');
+test('signed waiver is attached to the staff email and recorded, never stored',async()=>{
+ const sent=[];const env=environment(async message=>{sent.push(message)});env.RIDER_RECEIPTS_ENABLED='true';
+ const response=await worker.fetch(request({...valid(),riderName:'Jo Rider',waiver:{type:'application/pdf',data:pdf}}),env);
+ assert.equal(response.status,200);assert.doesNotMatch((await response.json()).message,/paper copy/);
+ assert.equal(sent[0].attachments.length,1);assert.equal(sent[0].attachments[0].filename,'waiver-2026-jo-rider.pdf');
+ assert.equal(sent[0].attachments[0].content,pdf);assert.match(sent[0].subject,/signed waiver/);
+ assert.match(sent[1].text,/received your signed waiver/);assert.equal(sent[1].attachments,undefined);
+ const row=env.db.prepare('SELECT * FROM registrations').get();assert.equal(row.waiver_status,'emailed');assert.equal(row.notification_status,'accepted');
+});
+test('signup without waiver links the printable form',async()=>{
+ const sent=[];const env=environment(async message=>{sent.push(message)});env.RIDER_RECEIPTS_ENABLED='true';
+ await worker.fetch(request(valid()),env);
+ assert.match(sent[0].text,/Signed waiver: not uploaded/);assert.match(sent[1].text,/clubranchmx-waiver-2026\.pdf/);
+ assert.equal(env.db.prepare('SELECT waiver_status FROM registrations').get().waiver_status,'none');
+});
+test('attachment failure still notifies staff and asks the rider for paper',async()=>{
+ const sent=[];const env=environment(async message=>{if(message.attachments)throw Error('E_CONTENT_TOO_LARGE');sent.push(message)});
+ const response=await worker.fetch(request({...valid(),waiver:{type:'application/pdf',data:pdf}}),env);
+ assert.equal(response.status,200);assert.match((await response.json()).message,/bring a signed paper copy/);
+ assert.match(sent[0].text,/could not be attached/);
+ const row=env.db.prepare('SELECT * FROM registrations').get();assert.equal(row.waiver_status,'failed');assert.equal(row.notification_status,'accepted');
+});
+test('invalid waiver files are rejected before saving',async()=>{
+ const env=environment(async()=>assert.fail('Must not send'));
+ const html=Buffer.from('<html><script>alert(1)</script></html>').toString('base64');
+ for(const w of [{type:'application/pdf',data:html},{type:'text/html',data:html},{type:'application/pdf',data:'not base64!'},'x',{type:'application/pdf',data:Buffer.alloc(9*1024*1024,37).toString('base64')}])
+  assert.equal((await worker.fetch(request({...valid(),waiver:w}),env)).status>=400,true);
+ assert.equal(env.db.prepare('SELECT COUNT(*) AS n FROM registrations').get().n,0);
 });
