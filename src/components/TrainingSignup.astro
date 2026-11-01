@@ -42,10 +42,12 @@ const waiverMb = waiver.maxBytes / 1024 / 1024;
         <h3 id={`${sectionId}-waiver`}>{waiver.season} liability waiver</h3>
         <p>Every rider needs a signed waiver at the track. Riders under 18 also need a parent or guardian signature.</p>
         <a class="waiver-download" href={waiver.href} download target="_blank" rel="noopener"><Icon name="download"/><span>Download waiver <small>PDF · print, sign, bring it on ride day</small></span></a>
-        <label class="waiver-upload"><span><Icon name="upload"/> Already signed? Upload it <em>Optional</em></span>
-          <input type="file" name="waiverFile" accept={waiverAccept} data-max-bytes={waiver.maxBytes}/>
-          <small>Photo or PDF, up to {waiverMb} MB. We’ll email it to the ranch team with your signup.</small>
-        </label>
+        <!-- Label beside, not around, the file input: Safari opens and cancels the picker when a label wraps it. -->
+        <div class="waiver-upload">
+          <label for={`${sectionId}-waiver-file`}><Icon name="upload"/> Already signed? Upload it <em>Optional</em></label>
+          <input id={`${sectionId}-waiver-file`} type="file" name="waiverFile" accept={waiverAccept} data-max-bytes={waiver.maxBytes} aria-describedby={`${sectionId}-waiver-hint`}/>
+          <small id={`${sectionId}-waiver-hint`}>Photo or PDF, up to {waiverMb} MB. We’ll email it to the ranch team with your signup.</small>
+        </div>
       </section>
       <label class="signup-consent"><input type="checkbox" name="marketingOptIn"/><span>Email me about upcoming Club Ranch MX events and training. Optional; unsubscribe at any time.</span></label>
       <p class="signup-note">We store your details to manage registration and event history. Future event emails are optional. <a href={`mailto:${site.email}`}>Contact us</a> to change preferences or request deletion.</p>
@@ -238,8 +240,8 @@ const waiverMb = waiver.maxBytes / 1024 / 1024;
   .waiver-download small { display:block; font-weight:400; font-size:12px; opacity:.8; }
   .waiver-download:hover svg { transform:translateY(2px); } .waiver-download svg { transition:transform .15s; }
   .waiver-download:focus-visible { outline:2px solid var(--focus); outline-offset:3px; }
-  .waiver-upload { margin-top:16px; }
-  .waiver-upload>span { display:flex; align-items:center; gap:8px; } .waiver-upload>span svg { width:18px; height:18px; }
+  .waiver-upload { display:flex; flex-direction:column; gap:8px; margin-top:16px; }
+  .waiver-upload>label { flex-direction:row; align-items:center; gap:8px; cursor:pointer; } .waiver-upload>label svg { width:18px; height:18px; }
   .waiver-upload em { font-style:normal; font-weight:400; color:var(--muted); }
   .waiver-upload input { padding:10px; min-height:0; cursor:pointer; }
   .waiver-upload input::file-selector-button { margin-right:12px; padding:8px 14px; border:1px solid var(--line); border-radius:6px; background:transparent; color:var(--ink); font:inherit; font-weight:600; cursor:pointer; }
