@@ -3,7 +3,6 @@ import { site } from '../data/site';
 import Icon from './Icon.astro';
 import { acceptsSignups, type SignupEvent } from '../data/signup-events';
 import { waiver } from '../data/waiver';
-import { phoneMaxLength } from '../data/phone';
 interface Props { event: SignupEvent; }
 const { event } = Astro.props;
 const sectionId = `signup-${event.id}`;
@@ -32,7 +31,7 @@ const waiverMb = waiver.maxBytes / 1024 / 1024;
       <p class="signup-note step-intro">For riders under 18, use a parent or guardian’s contact details.</p>
       <div class="signup-fields">
         <label>Email address<input name="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com"/></label>
-        <label>Phone number<input name="phone" type="tel" inputmode="tel" autocomplete="tel-national" required maxlength={phoneMaxLength} placeholder="(720) 555-0123"/></label>
+        <label>Phone number<input name="phone" type="tel" inputmode="tel" autocomplete="tel-national" required placeholder="(720) 555-0123"/></label>
         <label class="full">Anything we should know?<textarea name="notes" rows="3" maxlength="1000" placeholder="Optional — riding goals or questions"></textarea></label>
       </div>
     </fieldset>
@@ -60,7 +59,7 @@ const waiverMb = waiver.maxBytes / 1024 / 1024;
 </dialog>
 <noscript><p>To sign up for {event.title}, <a href={`mailto:${site.email}`}>email the ranch</a>.</p></noscript>
 <script>
-  import { formatUsPhone } from '../data/phone';
+  import { formatUsPhone, usPhoneDigits, formatPartialUsPhone } from '../data/phone';
   document.querySelectorAll<HTMLDialogElement>('.signup-modal').forEach(dialog => {
     let opener: HTMLElement | null = null;
     const openDialog = (trigger?: HTMLElement) => {
@@ -149,13 +148,26 @@ const waiverMb = waiver.maxBytes / 1024 / 1024;
     form.addEventListener('input', event => {
       if (!(event.target instanceof HTMLInputElement)) return;
       event.target.setCustomValidity('');
-      // Phone: keep only characters a US number can contain.
-      if (event.target.name === 'phone') event.target.value = event.target.value.replace(/[^+\d\s().-]/g, '');
     });
-    form.querySelector<HTMLInputElement>('input[name="phone"]')!.addEventListener('blur', event => {
-      const input = event.target as HTMLInputElement;
-      const phone = formatUsPhone(input.value.trim());
-      if (phone) input.value = phone;
+    // Phone: digits only, formatted as typed, stops at 10 digits. Paste of "+1 720 245 0588" also works.
+    const phoneInput = form.querySelector<HTMLInputElement>('input[name="phone"]')!;
+    let phoneBefore = '';
+    phoneInput.addEventListener('beforeinput', () => { phoneBefore = usPhoneDigits(phoneInput.value); });
+    phoneInput.addEventListener('input', event => {
+      const raw = phoneInput.value;
+      const caret = phoneInput.selectionStart ?? raw.length;
+      let digitsBeforeCaret = usPhoneDigits(raw.slice(0, caret)).length;
+      let digits = usPhoneDigits(raw);
+      // Backspacing over "(", ")", " " or "-" removes the digit before it instead of getting stuck.
+      if ((event as InputEvent).inputType === 'deleteContentBackward' && digits === phoneBefore && digitsBeforeCaret > 0) {
+        digits = digits.slice(0, digitsBeforeCaret - 1) + digits.slice(digitsBeforeCaret);
+        digitsBeforeCaret--;
+      }
+      const formatted = formatPartialUsPhone(digits);
+      phoneInput.value = formatted;
+      let position = 0, seen = 0;
+      while (position < formatted.length && seen < Math.min(digitsBeforeCaret, digits.length)) { if (/\d/.test(formatted[position])) seen++; position++; }
+      if (document.activeElement === phoneInput) phoneInput.setSelectionRange(position, position);
     });
     back.addEventListener('click', () => { if (!busy && !complete) { step--; showStep(); } });
     form.addEventListener('submit', async event => {
