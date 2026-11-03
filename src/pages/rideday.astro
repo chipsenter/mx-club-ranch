@@ -1,0 +1,62 @@
+---
+// Evergreen share link (clubranchmx.com/rideday): social crawlers read the ride-day preview below,
+// people are sent on to the next ride day's signup popup on the home page.
+import '@fontsource/barlow-condensed/600.css';
+import '@fontsource/manrope/400.css';
+import '../styles/global.css';
+import { site } from '../data/site';
+import { signupEvents, nextRideDay, signupHref } from '../data/signup-events';
+import { absoluteUrl } from '../lib/seo';
+
+const next = nextRideDay();
+const target = next ? `/${signupHref(next)}` : '/#training';
+const title = next ? `${next.title} · ${next.dateLabel}` : `${site.name} Ride Days`;
+const description = next
+  ? `Sign up for the ${next.dateLabel} ride day at ${site.name}, Longmont, Colorado. Register the rider, grab the waiver, and bring your bike.`
+  : `Open ride days at ${site.name}, Longmont, Colorado. Check the training calendar for the next date.`;
+const image = { path: '/images/ride-day-whip.jpeg', width: 1170, height: 639, alt: 'Motocross rider whipping a bike high above a dirt hill at Club Ranch MX.' };
+const pageUrl = absoluteUrl('/rideday/');
+const imageUrl = absoluteUrl(image.path);
+// Picked again in the browser so the link keeps working after a ride day passes, even before the next deploy.
+const rideDays = signupEvents.filter(event => event.kind === 'ride-day' && event.signupOpen).map(event => ({ hash: signupHref(event), date: event.dates.at(-1) }));
+---
+<!doctype html>
+<html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>{title} | {site.name}</title>
+<meta name="description" content={description}/>
+<meta name="robots" content="noindex, follow"/>
+{pageUrl && <link rel="canonical" href={pageUrl}/>}
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content={site.name}/>
+<meta property="og:title" content={title}/>
+<meta property="og:description" content={description}/>
+<meta property="og:locale" content="en_US"/>
+{pageUrl && <meta property="og:url" content={pageUrl}/>}
+{imageUrl && <>
+  <meta property="og:image" content={imageUrl}/>
+  <meta property="og:image:type" content="image/jpeg"/>
+  <meta property="og:image:width" content={String(image.width)}/>
+  <meta property="og:image:height" content={String(image.height)}/>
+  <meta property="og:image:alt" content={image.alt}/>
+  <meta name="twitter:image" content={imageUrl}/>
+  <meta name="twitter:image:alt" content={image.alt}/>
+</>}
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content={title}/>
+<meta name="twitter:description" content={description}/>
+<link rel="icon" type="image/png" href="/images/club-ranch-logo.png"/>
+<noscript><meta http-equiv="refresh" content={`0; url=${target}`}/></noscript>
+<script is:inline define:vars={{ rideDays }}>
+  const today = new Intl.DateTimeFormat('sv-SE', { timeZone: 'America/Denver' }).format(new Date());
+  const upcoming = rideDays.filter(day => day.date >= today).sort((a, b) => a.date.localeCompare(b.date))[0];
+  location.replace(upcoming ? '/' + upcoming.hash : '/#training');
+</script>
+</head>
+<body><main class="wrap ride-day-link">
+  <a href="/" aria-label="Club Ranch MX home"><img src="/images/club-ranch-logo.png" alt="Club Ranch MX" width="72" height="75"/></a>
+  <h1>{next ? next.title : 'Ride days'}</h1>
+  {next && <p>{next.dateLabel}</p>}
+  <a class="button" href={target}>{next ? 'Go to signup' : 'See the training calendar'}</a>
+</main></body></html>
+<style>.ride-day-link{min-height:100svh;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:24px;padding-block:48px}.ride-day-link h1{font-size:clamp(44px,7vw,80px)}</style>

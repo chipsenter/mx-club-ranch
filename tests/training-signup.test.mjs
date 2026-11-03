@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync } from 'node:fs';
-import { signupEvents, acceptsSignups } from '../src/data/signup-events.ts';
+import { signupEvents, acceptsSignups, nextRideDay } from '../src/data/signup-events.ts';
 import worker from '../workers/training-signup/index.ts';
 const valid = () => ({ eventId:'chisholm-2026-11-21', requestId:crypto.randomUUID(), riderName:'Test Rider', email:'rider@example.com', phone:'+1 607 624 9173', experience:'Intermediate', bike:'250', notes:'<test>', marketingOptIn:false });
 const request = (data, origin='https://clubranchmx.com') => new Request('https://clubranchmx.com/api/training-signup/', { method:'POST', headers:{ Origin:origin, 'Content-Type':'application/json' }, body:JSON.stringify(data) });
@@ -72,6 +72,13 @@ test('ride days get a stable ID and readable date',()=>{
  assert.ok(event);
  assert.equal(event.dateLabel,'Sunday, November 8, 2026');
  assert.deepEqual(event.dates,['2026-11-08']);
+});
+
+test('share link points at the soonest open ride day, never a training event',()=>{
+ assert.equal(nextRideDay(new Date('2026-11-02T18:00:00Z')).id,'ride-day-2026-11-08');
+ // Sunday evening in Colorado is already Monday in UTC; the ride day still counts until midnight ranch time.
+ assert.equal(nextRideDay(new Date('2026-11-09T05:00:00Z')).id,'ride-day-2026-11-08');
+ assert.equal(nextRideDay(new Date('2026-11-09T08:00:00Z')),undefined);
 });
 
 test('another event uses its own ID and email copy',async()=>{

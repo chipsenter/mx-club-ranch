@@ -7,6 +7,11 @@ Use Node 22.19+ (Node 24 also works), then `npm ci`, `npm run dev`. Run `npm run
 ## Content
 Edit `src/data/site.ts`. Add hero photos to `public/images` and append to `heroSlides`. Upcoming and past events each accept a title, ISO date, description, image, imageAlt and optional URL. Text appears below each event image. Empty event arrays show honest coming-soon states.
 
+### Ride days
+Add `rideDay('YYYY-MM-DD')` to `signupEvents` in `src/data/signup-events.ts` (keep date order). That marks the training calendar and adds the signup button and popup (rider, contact, waiver). For a poster card, add an `upcomingEvents` entry in `src/data/site.ts` with `url: signupHref(...)` and `linkLabel: 'Sign up'`. Deploy the signup worker before the site, since it validates event IDs.
+
+`clubranchmx.com/rideday` is the evergreen share link: it shows a ride-day link preview (photo, date) on social media and forwards visitors to the next open ride day's signup. Each ride day's direct link is `clubranchmx.com/#signup-ride-day-YYYY-MM-DD`.
+
 Enter phone, email, address, Facebook, Instagram, directions URL and a Google Maps embed URL in `site`. Missing values never produce dead contact links or a made-up location.
 
 ## Training booking
