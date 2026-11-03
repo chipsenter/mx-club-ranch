@@ -10,3 +10,6 @@ dist/
 
 .wrangler/
 .dev.vars
+
+# Playwright MCP browser-test scratch (screenshots, page snapshots)
+.playwright-mcp/
