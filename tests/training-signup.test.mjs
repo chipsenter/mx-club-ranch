@@ -62,11 +62,18 @@ test('invalid inputs, cross-origin requests and limits never store or send',asyn
 test('unknown and closed events cannot collect registrations', async()=>{
  const env=environment(async()=>assert.fail('Must not send'));
  assert.equal((await worker.fetch(request({...valid(),eventId:'invented-event'}),env)).status,400);
- const event=signupEvents[0];event.signupOpen=false;
+ const event=signupEvents.find(e=>e.id==='chisholm-2026-11-21');event.signupOpen=false;
  try { assert.equal((await worker.fetch(request(valid()),env)).status,409); } finally {event.signupOpen=true;}
  assert.equal(acceptsSignups(event,new Date('2026-11-24T12:00:00Z')),false);
  assert.equal(env.db.prepare('SELECT COUNT(*) AS n FROM registrations').get().n,0);
 });
+test('ride days get a stable ID and readable date',()=>{
+ const event=signupEvents.find(e=>e.id==='ride-day-2026-11-08');
+ assert.ok(event);
+ assert.equal(event.dateLabel,'Sunday, November 8, 2026');
+ assert.deepEqual(event.dates,['2026-11-08']);
+});
+
 test('another event uses its own ID and email copy',async()=>{
  const event={id:'test-event',title:'Test riding day',dateLabel:'December 20, 2026',dates:['2026-12-20'],signupOpen:true};signupEvents.push(event);
  let sent;const env=environment(async message=>{sent=message});

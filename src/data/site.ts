@@ -5,11 +5,13 @@ export type EventEntry = {
   dateLabel?: string; // Display-only dates when the supplied material omits a year
   imageWidth?: number;
   imageHeight?: number;
+  imagePosition?: string; // CSS object-position for cropped images, e.g. 'center 15%'
   poster?: boolean; // Preserve the entire poster rather than cropping it
   description: string;
   image: string; // /images/your-file.webp
   imageAlt: string;
   url?: string;
+  linkLabel?: string; // Defaults to “Event details”
 };
 export type TrainingSession = {
   date: string; // YYYY-MM-DD in the ranch's timezone
@@ -39,7 +41,22 @@ export const heroSlides = [
   { image: '/images/moto-air.jpg', alt: 'Motocross rider airborne above a dirt track', caption: 'Make every lap count.', credit: 'Illustrative photography · Jordan Andrews / Unsplash' },
 ];
 // Add real entries here; empty sections deliberately never invent dates or history.
-export const upcomingEvents: EventEntry[] = [];
+const rideDayNov8 = signupEvents.find(event => event.id === 'ride-day-2026-11-08')!;
+export const upcomingEvents: EventEntry[] = [
+  {
+    title: rideDayNov8.title,
+    date: '2026-11-08',
+    dateLabel: rideDayNov8.dateLabel,
+    description: 'An open ride day at Club Ranch MX. Sign up, grab the waiver, and bring your bike.',
+    image: '/images/ride-day-whip.jpeg',
+    imageAlt: 'Motocross rider whipping a bike high above a dirt hill under a grey sky at Club Ranch MX.',
+    imageWidth: 1170,
+    imageHeight: 639,
+    imagePosition: 'center 10%',
+    url: signupHref(rideDayNov8),
+    linkLabel: 'Sign up',
+  },
+];
 export const pastEvents: EventEntry[] = [
   {
     title: 'Train with Austin Forkner',
