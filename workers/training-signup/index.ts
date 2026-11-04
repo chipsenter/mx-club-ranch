@@ -1,4 +1,4 @@
-import { signupEvents, acceptsSignups } from '../../src/data/signup-events.ts';
+import { signupEvents, acceptsSignups, eventSeason } from '../../src/data/signup-events.ts';
 import { waiver } from '../../src/data/waiver.ts';
 import { formatUsPhone } from '../../src/data/phone.ts';
 const reply = (status: number, message: string) => Response.json({ message }, { status, headers: { 'Cache-Control': 'no-store' } });
@@ -75,6 +75,9 @@ export default {
     const signedWaiver = readWaiver(data.waiver, fields.riderName);
     if (signedWaiver === false) return reply(400, `The signed waiver must be a PDF or photo under ${waiver.maxBytes / 1024 / 1024} MB.`);
     if (data.marketingOptIn !== undefined && typeof data.marketingOptIn !== 'boolean') return reply(400, 'Invalid email preference.');
+    if (data.waiverClaimed !== undefined && typeof data.waiverClaimed !== 'boolean') return reply(400, 'Invalid waiver answer.');
+    const waiverClaimed = data.waiverClaimed === true;
+    const season = eventSeason(signupEvent);
     if (typeof data.requestId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(data.requestId)) return reply(400, 'Please refresh the form and try again.');
     const id = data.requestId;
     const email = fields.email.toLowerCase();
@@ -88,9 +91,9 @@ export default {
       if (existing) return reply(200, savedMessage);
       const results = await env.DB.batch([
         env.DB.prepare('INSERT INTO contacts (email, created_at) VALUES (?, ?) ON CONFLICT(email) DO NOTHING').bind(email, createdAt),
-        env.DB.prepare(`INSERT INTO registrations (id, email, event_id, rider_name, phone, experience, bike, notes, marketing_opt_in, consent_version, created_at, waiver_status)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO NOTHING`)
-          .bind(id, email, signupEvent.id, fields.riderName, fields.phone, fields.experience, fields.bike, fields.notes, optedIn ? 1 : 0, optedIn ? consentVersion : null, createdAt, signedWaiver ? 'pending' : 'none'),
+        env.DB.prepare(`INSERT INTO registrations (id, email, event_id, rider_name, phone, experience, bike, notes, marketing_opt_in, consent_version, created_at, waiver_status, waiver_claimed)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO NOTHING`)
+          .bind(id, email, signupEvent.id, fields.riderName, fields.phone, fields.experience, fields.bike, fields.notes, optedIn ? 1 : 0, optedIn ? consentVersion : null, createdAt, signedWaiver ? 'pending' : 'none', waiverClaimed ? 1 : 0),
         // An unchecked box never subscribes; a signup never reverses an unsubscribe.
         env.DB.prepare(`UPDATE contacts SET marketing_status = 'opted_in', consent_at = COALESCE(consent_at, ?), consent_version = COALESCE(consent_version, ?)
           WHERE email = ? AND marketing_status != 'unsubscribed' AND ? = 1 AND EXISTS (SELECT 1 FROM registrations WHERE id = ? AND email = ? AND marketing_opt_in = 1)`)
@@ -118,7 +121,7 @@ export default {
           await env.EMAIL.send(notification('uploaded but could not be attached. Ask the rider to bring a signed paper copy.'));
         }
       } else {
-        await env.EMAIL.send(notification('not uploaded. Rider should bring a signed paper copy.'));
+        await env.EMAIL.send(notification(waiverClaimed ? `Rider says they already signed a ${season} waiver. Not verified; check the roster.` : 'not uploaded. Rider should bring a signed paper copy.'));
       }
       await env.DB.prepare("UPDATE registrations SET notification_status = 'accepted' WHERE id = ?").bind(id).run();
     } catch {
@@ -132,7 +135,7 @@ export default {
     // Transactional acknowledgment is independent of marketing consent and staff notification.
     // Enable only after the sending domain can send to arbitrary rider addresses.
     if (env.RIDER_RECEIPTS_ENABLED === 'true') {
-      const receipt = `Thanks for signing up for ${signupEvent.title}!\n\nDates: ${signupEvent.dateLabel}\nLocation: Club Ranch MX, 11021 Yellowstone Rd, Longmont, CO 80504\n\nWe received your registration request. Your place is not confirmed yet. The ranch team will contact you about availability and next steps.\n\n${signedWaiver && waiverDelivered ? 'We received your signed waiver. Thank you!' : `Every rider needs a signed ${waiver.season} waiver. Print it, sign it, and bring it to the track:\n${waiver.url}`}\n\nQuestions? Reply to this email or contact post@clubranchmx.com.\n\nClub Ranch MX`;
+      const receipt = `Thanks for signing up for ${signupEvent.title}!\n\nDates: ${signupEvent.dateLabel}\nLocation: Club Ranch MX, 11021 Yellowstone Rd, Longmont, CO 80504\n\nWe received your registration request. Your place is not confirmed yet. The ranch team will contact you about availability and next steps.\n\n${signedWaiver && waiverDelivered ? 'We received your signed waiver. Thank you!' : !signedWaiver && waiverClaimed ? `You told us you already signed a ${season} waiver. If you're not sure, bring a signed copy.` : `Every rider needs a signed ${waiver.season} waiver. Print it, sign it, and bring it to the track:\n${waiver.url}`}\n\nQuestions? Reply to this email or contact post@clubranchmx.com.\n\nClub Ranch MX`;
       const receiptHtml = escape(receipt);
       try {
         await env.DB.prepare("UPDATE registrations SET receipt_status = 'pending' WHERE id = ?").bind(id).run();

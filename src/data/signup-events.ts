@@ -46,8 +46,12 @@ export const signupEvents: SignupEvent[] = [
 ];
 
 export const signupHref = (event: SignupEvent) => `#signup-${event.id}`;
+/** Today's date (YYYY-MM-DD) at the ranch. */
+export const ranchToday = (now = new Date()) => new Intl.DateTimeFormat('sv-SE', { timeZone: 'America/Denver' }).format(now);
+/** Waiver season: one signed waiver covers every event in the calendar year of the event's first date. */
+export const eventSeason = (event: Pick<SignupEvent, 'dates'>) => Number(event.dates[0].slice(0, 4));
 export function acceptsSignups(event: SignupEvent, now = new Date()): boolean {
-  const today = new Intl.DateTimeFormat('sv-SE', { timeZone: 'America/Denver' }).format(now);
+  const today = ranchToday(now);
   return event.signupOpen && event.dates.some(date => date >= today);
 }
 
