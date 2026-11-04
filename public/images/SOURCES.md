@@ -44,4 +44,4 @@ Seven Custom Ink product mockups supplied by the user on October 16, 2026. Copie
 
 - `ride-day-whip.jpeg`: user-supplied photo from their Photos library (9F1736D1-9FAE-4EA4-82A6-25A08AC8F5C1.jpeg), copied unchanged on November 2, 2026, for the November 8 ride day card in Upcoming events. No location metadata.
 
-- `robert-imondi.jpeg`: user-supplied robert_imodi.png (November 3, 2026), resized to 1200px JPEG for the Nov 4 Train with Robert Imondi card. The Nov 6 Ben Lamay card reuses `ranch-event-corner-roost.jpeg` until a photo is supplied.
+- `robert-imondi-coaching.jpeg`: user-supplied photo of Rob Imondi coaching four riders (November 3, 2026), resized to 1200px JPEG for the Nov 4 Train with Robert Imondi card. Replaces the earlier portrait. The Nov 6 Ben Lamay card reuses `ranch-event-corner-roost.jpeg` until a photo is supplied.
