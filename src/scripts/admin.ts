@@ -6,8 +6,14 @@ export type AdminEvent = EventInfo & { counts: Counts };
 export class AdminAuthError extends Error {}
 
 export async function fetchAdmin<T>(path: string): Promise<T> {
-  const response = await fetch(path, { credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' } });
-  // Access answers an expired session with a redirect to its login page, which fetch follows to HTML.
+  let response: Response;
+  try {
+    response = await fetch(path, { credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' } });
+  } catch {
+    // Access answers an expired session with a cross-origin redirect to its login page; fetch can't follow it and throws.
+    throw new AdminAuthError('Please sign in again.');
+  }
+  // A same-origin redirect or an HTML login page also means the session is gone.
   if (response.status === 401 || response.status === 403 || response.redirected || !response.headers.get('Content-Type')?.includes('application/json')) throw new AdminAuthError('Please sign in again.');
   const body = await response.json();
   if (!response.ok) throw new Error(body?.message || 'Something went wrong.');

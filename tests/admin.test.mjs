@@ -131,3 +131,10 @@ test('admin date helpers', () => {
   assert.deepEqual(presetRange('month', '2026-02-10'), { from: '2026-02-01', to: '2026-02-28' });
   assert.deepEqual(presetRange('year', '2026-11-04'), { from: '2026-01-01', to: '2026-12-31' });
 });
+
+import { fetchAdmin, AdminAuthError } from '../src/scripts/admin.ts';
+test('an expired Access session (blocked cross-origin redirect) reads as logged out', async () => {
+  const real = globalThis.fetch;
+  globalThis.fetch = async () => { throw new TypeError('Failed to fetch'); };
+  try { await assert.rejects(fetchAdmin('/api/admin/events/'), AdminAuthError); } finally { globalThis.fetch = real; }
+});

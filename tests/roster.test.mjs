@@ -100,3 +100,14 @@ test('counts add up', () => {
   const c = counts(rosterFor('ride-day-2026-11-08', rows));
   assert.deepEqual(c, { riders: 3, onFile: 1, claimed: 1, missing: 1 });
 });
+
+test('a few seasons of data stays fast (no per-rider rescans)', () => {
+  const rows = [];
+  for (let e = 0; e < 100; e++) for (let r = 0; r < 30; r++) rows.push(row({ event_id: `ev-${e}`, email: `r${(e * 7 + r) % 400}@x.co`, rider_name: `Rider ${(e * 7 + r) % 400}`, created_at: new Date(Date.UTC(2026, 0, 1 + e * 3, 18)).toISOString(), waiver_status: r % 5 ? 'none' : 'emailed' }));
+  const events = eventCatalog(rows, TODAY);
+  const start = performance.now();
+  for (const id of events.keys()) counts(roster(id, rows, events));
+  report('2026-01-01', '2026-12-31', rows, events);
+  const ms = performance.now() - start;
+  assert.ok(ms < 150, `took ${ms.toFixed(0)} ms`);
+});

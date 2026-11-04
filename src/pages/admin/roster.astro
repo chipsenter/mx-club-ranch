@@ -52,7 +52,11 @@ import AdminLayout from '../../components/AdminLayout.astro';
       box.replaceChildren(sheet(data.event, data.date, data.counts, data.riders));
       if (data.event.dates.length > 1) days.replaceChildren(...data.event.dates.map(d => el('a', { className: 'text-link', href: `?${new URLSearchParams({ event: id, date: d })}`, ...(d === data.date ? { 'aria-current': 'page' } : {}) }, dayLabel(d))));
       printButton.disabled = false;
-      if (params.get('print') === '1') requestAnimationFrame(() => window.print());
+      if (params.get('print') === '1') {
+        // Print once, after web fonts load so the layout matches; drop the flag so a reload doesn't print again.
+        history.replaceState(null, '', `?${new URLSearchParams({ event: id, date: data.date })}`);
+        document.fonts.ready.then(() => requestAnimationFrame(() => window.print()));
+      }
     } catch (error) {
       box.replaceChildren(error instanceof AdminAuthError ? authExpired() : failure(error instanceof Error ? error.message : 'Something went wrong.'));
     }
