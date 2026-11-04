@@ -41,8 +41,36 @@ export const heroSlides = [
   { image: '/images/moto-air.jpg', alt: 'Motocross rider airborne above a dirt track', caption: 'Make every lap count.', credit: 'Illustrative photography · Jordan Andrews / Unsplash' },
 ];
 // Add real entries here; empty sections deliberately never invent dates or history.
-const rideDayNov8 = signupEvents.find(event => event.id === 'ride-day-2026-11-08')!;
+const signupEvent = (id: string) => signupEvents.find(event => event.id === id)!;
+const rideDayNov8 = signupEvent('ride-day-2026-11-08');
+const imondi = signupEvent('imondi-2026-11-04');
+const lamay = signupEvent('lamay-2026-11-06');
 export const upcomingEvents: EventEntry[] = [
+  {
+    title: imondi.title,
+    date: '2026-11-04',
+    dateLabel: imondi.dateLabel,
+    description: 'Train with Rob Imondi at Club Ranch MX, 11 AM to 2 PM. Sign up, grab the waiver, and bring your bike.',
+    image: '/images/robert-imondi.jpeg',
+    imageAlt: 'Rob Imondi laughing in sunglasses and an Imondi cap, holding a Rob Imondi Personal Trainer sign.',
+    imageWidth: 1200,
+    imageHeight: 1200,
+    imagePosition: 'center 20%',
+    url: signupHref(imondi),
+    linkLabel: 'Sign up',
+  },
+  {
+    title: lamay.title,
+    date: '2026-11-06',
+    dateLabel: lamay.dateLabel,
+    description: 'Summit MX Coaching with Ben Lamay at Club Ranch MX, 1 PM to 4 PM. Sign up, grab the waiver, and bring your bike.',
+    image: '/images/ranch-event-corner-roost.jpeg',
+    imageAlt: 'Motocross rider leaning a blue bike through a dirt turn at Club Ranch MX, spraying soil behind the rear wheel.',
+    imageWidth: 1170,
+    imageHeight: 1144,
+    url: signupHref(lamay),
+    linkLabel: 'Sign up',
+  },
   {
     title: rideDayNov8.title,
     date: '2026-11-08',
@@ -74,7 +102,7 @@ export const chisholmSignupUrl = signupHref(signupEvents.find(event => event.id 
 export const trainingSessions: TrainingSession[] = [
   { date: '2026-10-03', title: 'Train with Austin Forkner' },
   { date: '2026-10-04', title: 'Train with Austin Forkner' },
-  ...signupEvents.flatMap(event => event.dates.map(date => ({ date, title: event.title, signupUrl: signupHref(event) }))),
+  ...signupEvents.flatMap(event => event.dates.map(date => ({ date, time: event.time, title: event.title, signupUrl: signupHref(event) }))),
 ];
 
 

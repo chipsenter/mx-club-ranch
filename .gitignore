@@ -13,3 +13,4 @@ dist/
 
 # Playwright MCP browser-test scratch (screenshots, page snapshots)
 .playwright-mcp/
+.superpowers/
