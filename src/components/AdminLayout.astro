@@ -1,0 +1,29 @@
+---
+// Shell for the private owner admin. Behind Cloudflare Access; never indexed, never cached, no rider data at build time.
+import '@fontsource/barlow-condensed/600.css';
+import '@fontsource/barlow-condensed/700.css';
+import '@fontsource/manrope/400.css';
+import '@fontsource/manrope/600.css';
+import '../styles/global.css';
+import '../styles/admin.css';
+interface Props { title: string; tabs?: boolean; }
+const { title, tabs = false } = Astro.props;
+---
+<!doctype html>
+<html lang="en" data-theme="light"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>{title} | Club Ranch MX Admin</title>
+<link rel="icon" type="image/png" href="/images/club-ranch-logo.png"/>
+</head>
+<body class="admin-body">
+  <header class="admin-header wrap">
+    <a class="admin-brand" href="/admin/"><img src="/images/club-ranch-logo.png" alt="" width="44" height="46"/><span>Club Ranch MX<small>Admin</small></span></a>
+    {tabs && <div class="admin-tabs" role="tablist" aria-label="Admin sections">
+      <button type="button" role="tab" id="tab-events" aria-controls="panel-events" aria-selected="true" data-tab="events">Events</button>
+      <button type="button" role="tab" id="tab-reports" aria-controls="panel-reports" aria-selected="false" data-tab="reports">Reports</button>
+    </div>}
+    <a class="admin-logout" href="/cdn-cgi/access/logout">Log out</a>
+  </header>
+  <main class="admin-main wrap"><slot/></main>
+</body></html>

@@ -1,0 +1,127 @@
+---
+import AdminLayout from '../../components/AdminLayout.astro';
+---
+<AdminLayout title="Events" tabs>
+  <section id="panel-events" role="tabpanel" aria-labelledby="tab-events">
+    <h1>Events</h1>
+    <p class="admin-lede">Head counts and waivers for every event. Print the check-in sheet the day before.</p>
+    <div data-events aria-live="polite"><p class="admin-empty">Loading events…</p></div>
+  </section>
+  <section id="panel-reports" role="tabpanel" aria-labelledby="tab-reports" hidden>
+    <h1>Reports</h1>
+    <p class="admin-lede">Who signed up, first-timers and waivers for any stretch of time.</p>
+    <div class="report-controls">
+      <button type="button" data-preset="week" aria-pressed="false">This week</button>
+      <button type="button" data-preset="month" aria-pressed="true">This month</button>
+      <button type="button" data-preset="year" aria-pressed="false">This year</button>
+      <form class="report-custom" data-custom>
+        <label>From<input type="date" name="from" required/></label>
+        <label>To<input type="date" name="to" required/></label>
+        <button type="submit">Show</button>
+      </form>
+    </div>
+    <div data-report aria-live="polite"></div>
+    <button type="button" class="button admin-print" data-print-report hidden>Print report</button>
+  </section>
+</AdminLayout>
+
+<script>
+  import { fetchAdmin, el, longDate, dayLabel, presetRange, waiverLabel, authExpired, failure, AdminAuthError, type AdminEvent, type Report } from '../../scripts/admin';
+
+  const eventsBox = document.querySelector<HTMLElement>('[data-events]')!;
+  const reportBox = document.querySelector<HTMLElement>('[data-report]')!;
+  const printReport = document.querySelector<HTMLButtonElement>('[data-print-report]')!;
+  let today = new Intl.DateTimeFormat('sv-SE', { timeZone: 'America/Denver' }).format(new Date());
+  const showError = (box: HTMLElement, error: unknown) => box.replaceChildren(error instanceof AdminAuthError ? authExpired() : failure(error instanceof Error ? error.message : 'Something went wrong.'));
+  const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+  const rosterUrl = (id: string, date?: string, print = false) => `/admin/roster/?${new URLSearchParams({ event: id, ...(date ? { date } : {}), ...(print ? { print: '1' } : {}) })}`;
+
+  function stats(e: AdminEvent) {
+    const c = e.counts;
+    return el('p', { className: 'admin-stats' },
+      el('span', {}, el('b', {}, c.riders), c.riders === 1 ? ' rider' : ' riders'),
+      el('span', { className: 'tone-ok' }, el('b', {}, c.onFile), c.onFile === 1 ? ' waiver on file' : ' waivers on file'),
+      c.claimed ? el('span', { className: 'tone-claimed' }, el('b', {}, c.claimed), ' rider says signed') : null,
+      el('span', { className: c.missing ? 'tone-missing' : '' }, el('b', {}, c.missing), ' missing'));
+  }
+
+  function card(e: AdminEvent) {
+    const when = e.dates.length > 1 ? `${longDate(e.dates[0])} – ${longDate(e.dates.at(-1)!)}` : longDate(e.dates[0]);
+    const prints = e.dates.length > 1
+      ? e.dates.map(d => el('a', { href: rosterUrl(e.id, d, true) }, `Print ${dayLabel(d)}`))
+      : [el('a', { href: rosterUrl(e.id, e.dates[0], true) }, 'Print check-in sheet')];
+    return el('article', { className: 'admin-card' },
+      el('time', { datetime: e.dates[0] }, [when, e.time].filter(Boolean).join(' · ')),
+      el('h2', {}, e.title), stats(e),
+      el('div', { className: 'admin-actions' }, el('a', { className: 'primary', href: rosterUrl(e.id) }, 'Open roster'), ...prints));
+  }
+
+  async function loadEvents() {
+    try {
+      const data = await fetchAdmin<{ today: string; events: AdminEvent[] }>('/api/admin/events/');
+      today = data.today;
+      const upcoming = data.events.filter(e => e.upcoming), past = data.events.filter(e => !e.upcoming);
+      eventsBox.replaceChildren(
+        el('h2', { className: 'admin-label' }, 'Upcoming'),
+        upcoming.length ? el('div', { className: 'admin-cards' }, ...upcoming.map(card)) : el('p', { className: 'admin-empty' }, 'No upcoming events.'),
+        el('h2', { className: 'admin-label' }, 'Past'),
+        past.length ? el('ul', { className: 'admin-past' }, ...past.map(e => el('li', {},
+          el('span', {}, longDate(e.dates[0])), el('span', {}, el('b', {}, e.title)), el('span', {}, `${plural(e.counts.riders, 'rider')} · ${e.counts.missing} missing`),
+          el('a', { href: rosterUrl(e.id) }, 'Roster')))) : el('p', { className: 'admin-empty' }, 'No past events yet.'));
+    } catch (error) { showError(eventsBox, error); }
+  }
+
+  async function loadReport(from: string, to: string) {
+    reportBox.replaceChildren(el('p', { className: 'admin-empty' }, 'Loading report…'));
+    printReport.hidden = true;
+    try {
+      const r = await fetchAdmin<Report>(`/api/admin/report/?${new URLSearchParams({ from, to })}`);
+      const t = r.totals;
+      const tile = (n: number, label: string, tone = '') => el('div', { className: `report-tile ${tone}` }, el('b', {}, n), el('span', {}, label));
+      reportBox.replaceChildren(
+        el('p', { className: 'report-range' }, `${longDate(r.from)} – ${longDate(r.to)}`),
+        el('div', { className: 'report-tiles' },
+          tile(t.events, 'Events'), tile(t.signups, 'Signups'), tile(t.uniqueRiders, 'Unique riders'), tile(t.firstTimers, 'First-timers'), tile(t.returning, 'Returning'),
+          tile(t.onFile, 'Waivers on file', 'tone-ok'), tile(t.claimed, 'Rider says signed', 'tone-claimed'), tile(t.missing, 'Waivers missing', t.missing ? 'tone-missing' : '')),
+        ...(r.events.length ? r.events.map(({ event, riders }) => el('section', { className: 'report-event' },
+          el('h2', {}, `${event.title} · ${longDate(event.dates[0])}`),
+          el('div', { className: 'admin-table-wrap' }, el('table', { className: 'admin-table' },
+            el('thead', {}, el('tr', {}, ...['Rider', 'Phone', 'Level', 'Bike', `Waiver ${event.season}`].map(h => el('th', { scope: 'col' }, h)))),
+            el('tbody', {}, ...riders.map(rider => {
+              const w = waiverLabel(rider.waiver, event.season, event.id);
+              return el('tr', { className: w.tone === 'missing' ? 'is-missing' : '' }, el('td', {}, rider.display), el('td', {}, rider.phone), el('td', {}, rider.experience), el('td', {}, rider.bike), el('td', { className: `tone-${w.tone}` }, w.text));
+            }))))))
+          : [el('p', { className: 'admin-empty' }, 'No signups in this range.')]));
+      printReport.hidden = r.events.length === 0;
+    } catch (error) { showError(reportBox, error); }
+  }
+
+  // Tabs
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>('[data-tab]')];
+  let reportLoaded = false;
+  function selectTab(name: string) {
+    for (const tab of tabs) {
+      const on = tab.dataset.tab === name;
+      tab.setAttribute('aria-selected', String(on));
+      document.getElementById(tab.getAttribute('aria-controls')!)!.hidden = !on;
+    }
+    if (name === 'reports' && !reportLoaded) { reportLoaded = true; const { from, to } = presetRange('month', today); loadReport(from, to); }
+  }
+  tabs.forEach(tab => tab.addEventListener('click', () => { history.replaceState(null, '', tab.dataset.tab === 'reports' ? '#reports' : location.pathname); selectTab(tab.dataset.tab!); }));
+
+  // Report controls
+  const presets = [...document.querySelectorAll<HTMLButtonElement>('[data-preset]')];
+  const custom = document.querySelector<HTMLFormElement>('[data-custom]')!;
+  const press = (active?: HTMLButtonElement) => presets.forEach(b => b.setAttribute('aria-pressed', String(b === active)));
+  presets.forEach(b => b.addEventListener('click', () => { press(b); const { from, to } = presetRange(b.dataset.preset as 'week' | 'month' | 'year', today); loadReport(from, to); }));
+  custom.addEventListener('submit', event => {
+    event.preventDefault();
+    const data = new FormData(custom);
+    const from = String(data.get('from')), to = String(data.get('to'));
+    if (from > to) { reportBox.replaceChildren(failure('“From” must be on or before “To”.')); return; }
+    press(); loadReport(from, to);
+  });
+  printReport.addEventListener('click', () => window.print());
+
+  loadEvents().then(() => { if (location.hash === '#reports') selectTab('reports'); });
+</script>

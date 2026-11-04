@@ -109,3 +109,25 @@ test('signup route is unchanged', async () => {
   const res = await worker.fetch(new Request('https://clubranchmx.com/api/training-signup/', { method: 'POST', headers: { Origin: 'https://clubranchmx.com', 'Content-Type': 'application/json' }, body: JSON.stringify(body) }), env);
   assert.equal(res.status, 200);
 });
+
+// --- Admin page helpers ---
+import { readFileSync } from 'node:fs';
+import { waiverLabel, shortDate, longDate, presetRange } from '../src/scripts/admin.ts';
+
+test('admin renderer never interprets rider text as HTML', () => {
+  assert.equal(waiverLabel({ kind: 'on_file', fromEventId: 'a', fromDate: '2026-11-04' }, 2026, 'b').text, '✔ on file (Nov 4)');
+  assert.equal(waiverLabel({ kind: 'on_file', fromEventId: 'b', fromDate: '2026-11-04' }, 2026, 'b').text, '✔ on file');
+  assert.deepEqual(waiverLabel({ kind: 'claimed' }, 2026, 'b'), { text: '☑ rider says signed', tone: 'claimed' });
+  assert.deepEqual(waiverLabel({ kind: 'missing' }, 2026, 'b'), { text: '✖ NEEDS PAPER', tone: 'missing' });
+  for (const file of ['src/scripts/admin.ts', 'src/pages/admin/index.astro', 'src/pages/admin/roster.astro']) assert.doesNotMatch(readFileSync(file, 'utf8'), /innerHTML|set:html|insertAdjacentHTML/, file);
+});
+
+test('admin date helpers', () => {
+  assert.equal(shortDate('2026-11-04'), 'Nov 4');
+  assert.equal(longDate('2026-11-08'), 'Sunday, November 8, 2026');
+  assert.deepEqual(presetRange('week', '2026-11-04'), { from: '2026-11-02', to: '2026-11-08' });
+  assert.deepEqual(presetRange('week', '2026-11-08'), { from: '2026-11-02', to: '2026-11-08' });
+  assert.deepEqual(presetRange('month', '2026-11-04'), { from: '2026-11-01', to: '2026-11-30' });
+  assert.deepEqual(presetRange('month', '2026-02-10'), { from: '2026-02-01', to: '2026-02-28' });
+  assert.deepEqual(presetRange('year', '2026-11-04'), { from: '2026-01-01', to: '2026-12-31' });
+});
