@@ -34,3 +34,78 @@ test('LOCAL_PREVIEW only bypasses on localhost', async () => {
   assert.equal(await verifyAccess(new Request('https://clubranchmx.com/api/admin/events'), env), null);
   assert.equal(await verifyAccess(new Request('http://127.0.0.1:8787/api/admin/events'), accessEnv()), null);
 });
+
+// --- Admin API ---
+import { environment } from './helpers/env.mjs';
+import worker from '../workers/training-signup/index.ts';
+
+async function adminEnv(rows = []) {
+  const env = { ...environment(), ...accessEnv() };
+  const insert = env.db.prepare(`INSERT INTO contacts (email, created_at) VALUES (?, '2026-10-01T00:00:00Z') ON CONFLICT(email) DO NOTHING`);
+  const reg = env.db.prepare(`INSERT INTO registrations (id, email, event_id, rider_name, phone, experience, bike, notes, marketing_opt_in, created_at, waiver_status, waiver_claimed) VALUES (?, ?, ?, ?, '(303) 555-0112', 'Intermediate', '', '', 0, ?, ?, ?)`);
+  rows.forEach((r, i) => { insert.run(r.email); reg.run(`r${i}`, r.email, r.event, r.name, r.created ?? '2026-11-01T18:00:00Z', r.waiver ?? 'none', r.claimed ?? 0); });
+  return env;
+}
+const get = async (env, path, token) => worker.fetch(adminRequest(path, token === undefined ? await jwt() : token), env);
+
+test('events lists upcoming with counts and keeps orphan events under past', async () => {
+  const env = await adminEnv([
+    { email: 'a@x.co', name: 'Ann Able', event: 'ride-day-2026-11-08', waiver: 'emailed' },
+    { email: 'b@x.co', name: 'Bo Bee', event: 'ride-day-2026-11-08' },
+    { email: 'c@x.co', name: 'Cy Old', event: 'old-2025', created: '2025-06-01T18:00:00Z' },
+  ]);
+  const res = await get(env, '/api/admin/events');
+  assert.equal(res.status, 200);
+  const { today, events } = await res.json();
+  assert.match(today, /^\d{4}-\d{2}-\d{2}$/);
+  const nov8 = events.find(e => e.id === 'ride-day-2026-11-08');
+  assert.deepEqual(nov8.counts, { riders: 2, onFile: 1, claimed: 0, missing: 1 });
+  const old = events.find(e => e.id === 'old-2025');
+  assert.equal(old.upcoming, false);
+  assert.equal(old.counts.riders, 1);
+  const firstPast = events.findIndex(e => !e.upcoming);
+  assert.ok(events.slice(0, firstPast).every(e => e.upcoming) && events.slice(firstPast).every(e => !e.upcoming));
+});
+
+test('roster for a two-day event accepts each date and rejects others', async () => {
+  const env = await adminEnv([{ email: 'a@x.co', name: 'Ann Able', event: 'chisholm-2026-11-21' }]);
+  const ok = await get(env, '/api/admin/roster/?event=chisholm-2026-11-21&date=2026-11-22');
+  assert.equal(ok.status, 200);
+  const body = await ok.json();
+  assert.equal(body.date, '2026-11-22');
+  assert.equal(body.riders[0].display, 'Able, Ann');
+  assert.equal((await (await get(env, '/api/admin/roster/?event=chisholm-2026-11-21')).json()).date, '2026-11-21');
+  assert.equal((await get(env, '/api/admin/roster/?event=chisholm-2026-11-21&date=2026-11-23')).status, 400);
+  assert.equal((await get(env, '/api/admin/roster/?event=invented')).status, 404);
+});
+
+test('report validates range', async () => {
+  const env = await adminEnv();
+  assert.equal((await get(env, '/api/admin/report/?from=2026-11-09&to=2026-11-01')).status, 400);
+  assert.equal((await get(env, '/api/admin/report/?from=bad&to=2026-11-01')).status, 400);
+  assert.equal((await get(env, '/api/admin/report/?from=2024-01-01&to=2026-11-01')).status, 400);
+  const ok = await get(env, '/api/admin/report/?from=2026-11-01&to=2026-11-30');
+  assert.equal(ok.status, 200);
+  assert.equal((await ok.json()).totals.events, 0);
+});
+
+test('admin responses are no-store and noindex; POST is 405; no token is 403 and reads nothing', async () => {
+  const env = await adminEnv();
+  const res = await get(env, '/api/admin/events');
+  assert.equal(res.headers.get('Cache-Control'), 'no-store');
+  assert.equal(res.headers.get('X-Robots-Tag'), 'noindex');
+  assert.equal((await worker.fetch(adminRequest('/api/admin/events', await jwt(), { method: 'POST' }), env)).status, 405);
+  assert.equal((await get(env, '/api/admin/nope')).status, 404);
+  env.DB.prepare = () => { throw Error('must not read'); };
+  const denied = await get(env, '/api/admin/events', null);
+  assert.equal(denied.status, 403);
+  assert.equal(denied.headers.get('Cache-Control'), 'no-store');
+  assert.equal((await get(env, '/api/admin/events', await jwt({ ...goodClaims(), email: 'stranger@gmail.com' }))).status, 403);
+});
+
+test('signup route is unchanged', async () => {
+  const env = await adminEnv();
+  const body = { eventId: 'chisholm-2026-11-21', requestId: crypto.randomUUID(), riderName: 'Test Rider', email: 'rider@example.com', phone: '+1 607 624 9173', experience: 'Intermediate' };
+  const res = await worker.fetch(new Request('https://clubranchmx.com/api/training-signup/', { method: 'POST', headers: { Origin: 'https://clubranchmx.com', 'Content-Type': 'application/json' }, body: JSON.stringify(body) }), env);
+  assert.equal(res.status, 200);
+});

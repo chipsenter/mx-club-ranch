@@ -1,6 +1,7 @@
 import { signupEvents, acceptsSignups, eventSeason } from '../../src/data/signup-events.ts';
 import { waiver } from '../../src/data/waiver.ts';
 import { formatUsPhone } from '../../src/data/phone.ts';
+import { handleAdmin } from './admin.ts';
 const reply = (status: number, message: string) => Response.json({ message }, { status, headers: { 'Cache-Control': 'no-store' } });
 const levels = ['Beginner', 'Intermediate', 'Advanced', 'Competitive racer'];
 // Text fields fit in 8 KB; a signed waiver adds its base64 size (4/3 of the file) plus a little JSON.
@@ -31,6 +32,7 @@ function readWaiver(value: unknown, riderName: string): Waiver | null | false {
 }
 export default {
   async fetch(request, env) {
+    if (new URL(request.url).pathname.startsWith('/api/admin/')) return handleAdmin(request, env);
     if (new URL(request.url).pathname !== '/api/training-signup/') return reply(404, 'Not found.');
     if (request.method !== 'POST') return reply(405, 'Use the signup form to send a request.');
     const origin = request.headers.get('Origin');

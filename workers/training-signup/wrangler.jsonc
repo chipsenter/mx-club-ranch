@@ -20,6 +20,14 @@
     {
       "pattern": "www.clubranchmx.com/api/training-signup/",
       "zone_name": "clubranchmx.com"
+    },
+    {
+      "pattern": "clubranchmx.com/api/admin/*",
+      "zone_name": "clubranchmx.com"
+    },
+    {
+      "pattern": "www.clubranchmx.com/api/admin/*",
+      "zone_name": "clubranchmx.com"
     }
   ],
   "send_email": [
