@@ -1,0 +1,66 @@
+---
+import AdminLayout from '../../components/AdminLayout.astro';
+---
+<AdminLayout title="Check-in sheet">
+  <div class="sheet-toolbar">
+    <a class="text-link" href="/admin/">← Back to events</a>
+    <div class="sheet-days" data-days></div>
+    <button type="button" class="button" data-print disabled>Print check-in sheet</button>
+  </div>
+  <div data-sheet aria-live="polite"><p class="admin-empty">Loading roster…</p></div>
+</AdminLayout>
+
+<script>
+  import { fetchAdmin, el, longDate, dayLabel, waiverLabel, authExpired, failure, AdminAuthError, type EventInfo, type Counts, type Rider } from '../../scripts/admin';
+
+  const BLANK_ROWS = 8;
+  const NOTE_PRINT_CHARS = 40;
+  const box = document.querySelector<HTMLElement>('[data-sheet]')!;
+  const days = document.querySelector<HTMLElement>('[data-days]')!;
+  const printButton = document.querySelector<HTMLButtonElement>('[data-print]')!;
+  const params = new URLSearchParams(location.search);
+  const short = (text: string) => text.length > NOTE_PRINT_CHARS ? `${text.slice(0, NOTE_PRINT_CHARS).trimEnd()}…` : text;
+
+  function sheet(event: EventInfo, date: string, counts: Counts, riders: Rider[]) {
+    const head = el('div', { className: 'sheet-head' },
+      el('div', {}, el('p', { className: 'club' }, 'CLUB RANCH MX'), el('h1', {}, event.title), el('p', {}, [longDate(date), event.time].filter(Boolean).join(' · '))),
+      el('div', { className: 'sheet-count' }, el('b', {}, `${counts.riders} ${counts.riders === 1 ? 'rider' : 'riders'}`),
+        el('p', {}, `${counts.onFile} ${counts.onFile === 1 ? 'waiver' : 'waivers'} on file · ${counts.missing} ${counts.missing === 1 ? 'needs' : 'need'} paper waiver${counts.claimed ? ` · ${counts.claimed} rider says signed` : ''}`)));
+    const columns = ['✓ In', 'Rider', 'Phone', 'Level', 'Bike', `Waiver ${event.season}`, 'Notes'];
+    const colClass = ['col-in', 'col-rider', 'col-phone', 'col-level', 'col-bike', 'col-waiver', 'col-notes'];
+    const rows = riders.map(r => {
+      const w = waiverLabel(r.waiver, event.season, event.id);
+      return el('tr', { className: w.tone === 'missing' ? 'is-missing' : '' },
+        el('td', {}, el('span', { className: 'box', 'aria-label': 'Checked in' })), el('td', {}, r.display), el('td', {}, r.phone),
+        el('td', { className: 'col-level' }, r.experience), el('td', { className: 'col-bike' }, r.bike), el('td', { className: 'waiver' }, w.text),
+        el('td', {}, el('span', { className: 'notes-screen' }, r.notes), el('span', { className: 'notes-print' }, short(r.notes))));
+    });
+    const blanks = Array.from({ length: BLANK_ROWS }, () => el('tr', { className: 'blank' }, ...colClass.map((c, i) => el('td', { className: c }, i === 0 ? el('span', { className: 'box' }) : ''))));
+    const printed = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Denver', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date());
+    return el('article', { className: 'sheet' }, head,
+      el('table', {}, el('thead', {}, el('tr', {}, ...columns.map((c, i) => el('th', { scope: 'col', className: colClass[i] }, c)))), el('tbody', {}, ...rows, ...blanks)),
+      el('p', { className: 'sheet-foot' }, `Sorted by last name · missing waivers highlighted · blank lines for walk-ups · printed ${printed}`));
+  }
+
+  async function load() {
+    const id = params.get('event');
+    if (!id) { box.replaceChildren(failure('No event chosen.')); return; }
+    try {
+      const q = new URLSearchParams({ event: id, ...(params.get('date') ? { date: params.get('date')! } : {}) });
+      const data = await fetchAdmin<{ event: EventInfo; date: string; counts: Counts; riders: Rider[] }>(`/api/admin/roster/?${q}`);
+      document.title = `${data.event.title} · ${dayLabel(data.date)} | Club Ranch MX Admin`;
+      box.replaceChildren(sheet(data.event, data.date, data.counts, data.riders));
+      if (data.event.dates.length > 1) days.replaceChildren(...data.event.dates.map(d => el('a', { className: 'text-link', href: `?${new URLSearchParams({ event: id, date: d })}`, ...(d === data.date ? { 'aria-current': 'page' } : {}) }, dayLabel(d))));
+      printButton.disabled = false;
+      if (params.get('print') === '1') {
+        // Print once, after web fonts load so the layout matches; drop the flag so a reload doesn't print again.
+        history.replaceState(null, '', `?${new URLSearchParams({ event: id, date: data.date })}`);
+        document.fonts.ready.then(() => requestAnimationFrame(() => window.print()));
+      }
+    } catch (error) {
+      box.replaceChildren(error instanceof AdminAuthError ? authExpired() : failure(error instanceof Error ? error.message : 'Something went wrong.'));
+    }
+  }
+  printButton.addEventListener('click', () => window.print());
+  load();
+</script>

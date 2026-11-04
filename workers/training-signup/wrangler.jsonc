@@ -6,7 +6,11 @@
   "workers_dev": false,
   "vars": {
     "LOCAL_PREVIEW": "false",
-    "RIDER_RECEIPTS_ENABLED": "true"
+    "RIDER_RECEIPTS_ENABLED": "true",
+    // Cloudflare Access (owner admin). Empty team domain or AUD locks the admin API.
+    "ACCESS_TEAM_DOMAIN": "clubranchmx.cloudflareaccess.com",
+    "ACCESS_AUD": "c428de15665adc137a67403de564b222c5230d76921e0217e721267fde27c690",
+    "ADMIN_EMAILS": "mxjj17@gmail.com,jflsolutionsco@gmail.com"
   },
   "routes": [
     {
@@ -15,6 +19,14 @@
     },
     {
       "pattern": "www.clubranchmx.com/api/training-signup/",
+      "zone_name": "clubranchmx.com"
+    },
+    {
+      "pattern": "clubranchmx.com/api/admin/*",
+      "zone_name": "clubranchmx.com"
+    },
+    {
+      "pattern": "www.clubranchmx.com/api/admin/*",
       "zone_name": "clubranchmx.com"
     }
   ],

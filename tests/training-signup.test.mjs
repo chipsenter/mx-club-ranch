@@ -1,25 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DatabaseSync } from 'node:sqlite';
-import { readFileSync } from 'node:fs';
-import { signupEvents, acceptsSignups, nextRideDay } from '../src/data/signup-events.ts';
+import { environment } from './helpers/env.mjs';
+import { signupEvents, acceptsSignups, nextRideDay, eventSeason, rideDay } from '../src/data/signup-events.ts';
 import worker from '../workers/training-signup/index.ts';
 const valid = () => ({ eventId:'chisholm-2026-11-21', requestId:crypto.randomUUID(), riderName:'Test Rider', email:'rider@example.com', phone:'+1 607 624 9173', experience:'Intermediate', bike:'250', notes:'<test>', marketingOptIn:false });
 const request = (data, origin='https://clubranchmx.com') => new Request('https://clubranchmx.com/api/training-signup/', { method:'POST', headers:{ Origin:origin, 'Content-Type':'application/json' }, body:JSON.stringify(data) });
-function environment(send=async()=>({}), allowed=true) {
- const db=new DatabaseSync(':memory:'); db.exec(readFileSync(new URL('../workers/training-signup/migrations/0001_rider_contacts.sql',import.meta.url),'utf8'));
- db.exec(readFileSync(new URL('../workers/training-signup/migrations/0002_rider_receipts.sql',import.meta.url),'utf8'));
- db.exec(readFileSync(new URL('../workers/training-signup/migrations/0003_rider_waivers.sql',import.meta.url),'utf8'));
- const prepare = sql => ({
-   bind(...args) {
-     return {
-       first: async () => db.prepare(sql).get(...args),
-       run: async () => ({ meta: { changes: Number(db.prepare(sql).run(...args).changes) } }),
-     };
-   },
- });
- return {db,EMAIL:{send}, SIGNUP_LIMIT:{limit:async()=>({success:allowed})},DB:{prepare,batch:async statements=>{db.exec('BEGIN');try{const results=[];for(const s of statements)results.push(await s.run());db.exec('COMMIT');return results;}catch(e){db.exec('ROLLBACK');throw e;}}}};
-}
 test('registration stores all fields, excludes unchecked contacts from audience, and escapes email',async()=>{
  let sent;const env=environment(async email=>{sent=email});const data=valid();
  assert.equal((await worker.fetch(request(data),env)).status,200);
@@ -53,7 +38,7 @@ test('storage outage fails before sending email',async()=>{
 });
 test('invalid inputs, cross-origin requests and limits never store or send',async()=>{
  const env=environment(async()=>assert.fail('Must not send'));
- for(const data of [{...valid(),email:'bad'},{...valid(),experience:'fake'},{...valid(),website:'spam'},{...valid(),notes:'x'.repeat(9000)},{...valid(),marketingOptIn:'yes'},{...valid(),requestId:'bad'},{...valid(),phone:'+46 70 123 45 67'},{...valid(),phone:'123-456-7890'},{...valid(),phone:'720 245 058'},{...valid(),phone:'720-245-0588 ext 2'}])assert.ok((await worker.fetch(request(data),env)).status>=400);
+ for(const data of [{...valid(),email:'bad'},{...valid(),experience:'fake'},{...valid(),website:'spam'},{...valid(),notes:'x'.repeat(9000)},{...valid(),marketingOptIn:'yes'},{...valid(),waiverClaimed:'yes'},{...valid(),requestId:'bad'},{...valid(),phone:'+46 70 123 45 67'},{...valid(),phone:'123-456-7890'},{...valid(),phone:'720 245 058'},{...valid(),phone:'720-245-0588 ext 2'}])assert.ok((await worker.fetch(request(data),env)).status>=400);
  assert.equal((await worker.fetch(request(valid(),'https://example.com'),env)).status,403);
  assert.equal((await worker.fetch(request(valid()),environment(undefined,false))).status,429);
  assert.equal(env.db.prepare('SELECT COUNT(*) AS n FROM registrations').get().n,0);
@@ -149,4 +134,25 @@ test('US phone numbers are accepted in common formats and stored consistently',a
   const env=environment();assert.equal((await worker.fetch(request({...valid(),phone}),env)).status,200,phone);
   assert.equal(env.db.prepare('SELECT phone FROM registrations').get().phone,'(720) 245-0588');
  }
+});
+
+test('claimed waiver is stored and told to staff and rider',async()=>{
+ const sent=[];const env=environment(async message=>{sent.push(message)});env.RIDER_RECEIPTS_ENABLED='true';
+ assert.equal((await worker.fetch(request({...valid(),waiverClaimed:true}),env)).status,200);
+ assert.equal(env.db.prepare('SELECT waiver_claimed FROM registrations').get().waiver_claimed,1);
+ assert.ok(sent[0].text.includes('Signed waiver: Rider says they already signed a 2026 waiver. Not verified; check the roster.'));
+ assert.ok(sent[1].text.includes("You told us you already signed a 2026 waiver. If you're not sure, bring a signed copy."));
+});
+test('unticked claim is stored as 0',async()=>{
+ const env=environment();await worker.fetch(request(valid()),env);
+ assert.equal(env.db.prepare('SELECT waiver_claimed FROM registrations').get().waiver_claimed,0);
+});
+test('upload wins over claim in emails',async()=>{
+ const sent=[];const env=environment(async message=>{sent.push(message)});
+ await worker.fetch(request({...valid(),waiverClaimed:true,waiver:{type:'application/pdf',data:pdf}}),env);
+ assert.match(sent[0].text,/Signed waiver: attached \(/);
+ assert.equal(env.db.prepare('SELECT waiver_claimed FROM registrations').get().waiver_claimed,1);
+});
+test('eventSeason uses the first event date',()=>{
+ assert.equal(eventSeason(rideDay('2027-01-09')),2027);
 });
