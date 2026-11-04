@@ -10,7 +10,7 @@ Run `npm run signup:dev` and `npm run dev`. Create `workers/training-signup/.dev
 
 ## Checks
 
-- `node --experimental-strip-types --test tests/training-signup.test.mjs`
+- `node --experimental-strip-types --test 'tests/*.test.mjs'`
 - `npx tsc -p workers/training-signup/tsconfig.json`
 - `npm run build:production`
 
@@ -54,3 +54,43 @@ Each new saved signup sends an acknowledgment to its normalized submitted email 
 The review step offers the season waiver PDF (`public/waivers/clubranchmx-waiver-2026.pdf`) and an optional upload of a signed copy. The PDF is rendered from `scripts/waiver/clubranchmx-waiver-2026.html` with headless Chrome (print to PDF, Letter, no header/footer). For a new season, copy the HTML, change the year, render the PDF, and update `src/data/waiver.ts`.
 
 An uploaded waiver (PDF, JPEG, PNG, WebP or HEIC, up to 8 MB, checked by file signature) is attached to the staff notification email only; it is never stored in D1 or elsewhere, so the inbox is the record. `waiver_status` is none/pending/emailed/failed. If the attachment is rejected, staff still receive the signup without it, and the rider is told to bring a paper copy. Apply migration 0003 before deploying.
+
+## Owner admin
+
+`https://clubranchmx.com/admin/` lists upcoming and past events with rider counts and waiver status, prints a per-day check-in sheet (US Letter, landscape), and runs week/month/year/custom reports. It is read-only: corrections still go through the D1 console.
+
+Pages are static (`src/pages/admin/`) and contain no rider data. They read `GET /api/admin/events/`, `/api/admin/roster/?event=&date=` and `/api/admin/report/?from=&to=` from this Worker. Every admin response is `no-store` and `noindex`.
+
+**Who can log in:** `mxjj17@gmail.com` and `jflsolutionsco@gmail.com`. They're kept in two places: the Access policy, and the Worker's `ADMIN_EMAILS` variable.
+
+**Waiver rule:**
+- A rider is one email plus one name, so siblings stay separate.
+- One waiver covers every event in the calendar year of the event's first date.
+- ✔ on file: a waiver upload for any event that season reached the ranch inbox (`waiver_status = 'emailed'`).
+- ☑ rider says signed: the rider ticked "I already signed a {year} waiver" (`waiver_claimed = 1`). Unverified.
+- Anything else is ✖ NEEDS PAPER.
+
+### Cloudflare Access setup (one time)
+
+1. Cloudflare dashboard → **Zero Trust**. Choose a team name; that gives you the team domain `<team>.cloudflareaccess.com`. Pick the Free plan. Cloudflare may ask for a payment method, but it isn't charged on Free.
+2. **Settings → Authentication → Login methods.** Make sure **One-time PIN** is enabled.
+3. **Access → Applications → Add → Self-hosted:**
+   - Name: `Club Ranch Admin`.
+   - Session duration: 30 days.
+   - Add these four destinations: `clubranchmx.com/admin`, `clubranchmx.com/api/admin`, `www.clubranchmx.com/admin`, `www.clubranchmx.com/api/admin`.
+4. Add a policy:
+   - Name: `Owners`.
+   - Action: Allow.
+   - Include → Emails: `mxjj17@gmail.com`, `jflsolutionsco@gmail.com`.
+5. Open the application's **Overview** and copy the **Application Audience (AUD) Tag**. In `wrangler.jsonc`, set:
+   - `ACCESS_AUD` to that tag.
+   - `ACCESS_TEAM_DOMAIN` to `<team>.cloudflareaccess.com`.
+6. Apply the migration: `npx wrangler d1 migrations apply club-ranch-riders --config workers/training-signup/wrangler.jsonc --remote`.
+7. Deploy: `npm run signup:deploy`, then `npm run pages:deploy`.
+8. Check from a logged-out terminal: `curl -s -o /dev/null -w "%{http_code}" https://clubranchmx.com/api/admin/events/`. It must print `302` or `403`, never `200`.
+
+Logging out is at `/cdn-cgi/access/logout`. If `ACCESS_AUD` or `ACCESS_TEAM_DOMAIN` is empty, the admin API refuses everyone.
+
+### Local admin
+
+Run `npm run signup:dev`. It passes `--local-upstream 127.0.0.1:8787`, so the localhost bypass works. Then run `npm run dev` and open `http://127.0.0.1:4321/admin/`. With `LOCAL_PREVIEW=true` in `.dev.vars`, the admin skips Access on localhost only. Apply migrations locally with `--local` first.
