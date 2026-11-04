@@ -8,8 +8,8 @@
     "LOCAL_PREVIEW": "false",
     "RIDER_RECEIPTS_ENABLED": "true",
     // Cloudflare Access (owner admin). Empty team domain or AUD locks the admin API.
-    "ACCESS_TEAM_DOMAIN": "",
-    "ACCESS_AUD": "",
+    "ACCESS_TEAM_DOMAIN": "clubranchmx.cloudflareaccess.com",
+    "ACCESS_AUD": "c428de15665adc137a67403de564b222c5230d76921e0217e721267fde27c690",
     "ADMIN_EMAILS": "mxjj17@gmail.com,jflsolutionsco@gmail.com"
   },
   "routes": [
