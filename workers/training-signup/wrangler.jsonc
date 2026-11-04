@@ -6,7 +6,11 @@
   "workers_dev": false,
   "vars": {
     "LOCAL_PREVIEW": "false",
-    "RIDER_RECEIPTS_ENABLED": "true"
+    "RIDER_RECEIPTS_ENABLED": "true",
+    // Cloudflare Access (owner admin). Empty team domain or AUD locks the admin API.
+    "ACCESS_TEAM_DOMAIN": "",
+    "ACCESS_AUD": "",
+    "ADMIN_EMAILS": "mxjj17@gmail.com,jflsolutionsco@gmail.com"
   },
   "routes": [
     {
